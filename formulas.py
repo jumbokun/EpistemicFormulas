@@ -19,7 +19,11 @@ class Proposition(EpistemicFormula):
 
 class Negation(EpistemicFormula):
     def __init__(self, formula: EpistemicFormula):
-        self.formula = formula
+        # ¬¬φ = φ
+        if isinstance(formula, Negation):
+            self.formula = formula.formula  
+        else:
+            self.formula = formula
     
     def __str__(self):
         return f"¬{self.formula}"

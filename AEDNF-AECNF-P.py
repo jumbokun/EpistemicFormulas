@@ -64,6 +64,9 @@ class ObjectiveFormula(EpistemicFormula):
     
     def __str__(self):
         return str(self.formula)
+    
+    def __repr__(self):
+        return f"ObjectiveFormula({self.formula})"
 
 class AEDNFClause:
     """Single clause in AEDNF: α ∧ ⋀_a(K_a φ_a ∧ ⋀_j ¬K_a ψ_{a,j})"""
@@ -176,11 +179,12 @@ class AEDNFAECNFConverter:
             # If alternating constraint is not satisfied, preprocess first
             formula = self._preprocess_alternating(formula)
         
-        # 3. Convert to AEDNF
+        # 3. Convert to AEDNF (Disjunctive Normal Form)
         aednf = self._convert_to_aednf(formula, modal_depth)
         
-        # 4. Convert to AECNF through negation
-        aecnf = self._convert_aednf_to_aecnf(aednf)
+        # 4. Convert AEDNF to AECNF (Conjunctive Normal Form)
+        # Both should represent the same original formula
+        aecnf = self._convert_dnf_to_cnf(aednf, formula, modal_depth)
         
         # 5. Simplify normal forms
         aednf = self._simplify_aednf(aednf)
@@ -386,98 +390,132 @@ class AEDNFAECNFConverter:
         else:
             return True
     
-    def _convert_aednf_to_aecnf(self, aednf: AEDNF) -> AECNF:
-        """Convert AEDNF to AECNF - both represent the same formula"""
-        # This is a complex transformation that requires distributing
-        # disjunctions over conjunctions while preserving logical equivalence
+    def _convert_dnf_to_cnf(self, aednf: AEDNF, original_formula: EpistemicFormula, modal_depth: int) -> AECNF:
+        """Convert AEDNF (DNF) to AECNF (CNF) - both represent the same formula"""
         
-        # For now, implement a simplified version that handles basic cases
-        # In a full implementation, this would require more sophisticated algorithms
+        # For simple cases, directly convert the original formula to CNF
+        if modal_depth == 0:
+            # Pure propositional formula - convert to CNF
+            cnf_clauses = self._build_aecnf_clauses(original_formula)
+            return AECNF(cnf_clauses, 0)
         
-        if len(aednf.clauses) == 1:
-            # Single clause case: convert the single AEDNF clause to AECNF
-            clause = aednf.clauses[0]
-            return self._single_aednf_to_aecnf(clause, aednf.modal_depth)
+        # For epistemic formulas, we need to build CNF representation
+        cnf_clauses = self._build_aecnf_clauses(original_formula)
+        return AECNF(cnf_clauses, modal_depth)
+    
+    def _build_aecnf_clauses(self, formula: EpistemicFormula) -> List[AECNFClause]:
+        """Build AECNF clauses (CNF representation)"""
+        if isinstance(formula, Proposition):
+            objective = ObjectiveFormula(formula)
+            return [AECNFClause(objective, {}, {})]
+        
+        elif isinstance(formula, Negation):
+            inner_formula = formula.formula
+            if isinstance(inner_formula, Knowledge):
+                # ¬K_a φ -> create clause with negative knowledge
+                agent = inner_formula.agent
+                inner_obj = ObjectiveFormula(inner_formula.formula)
+                neg_knowledge = {agent: inner_obj}
+                return [AECNFClause(None, neg_knowledge, {})]
+            else:
+                # ¬φ where φ is not knowledge -> objective formula
+                objective = ObjectiveFormula(formula)
+                return [AECNFClause(objective, {}, {})]
+        
+        elif isinstance(formula, BinaryConnective):
+            if formula.operator == '∧':
+                # φ ∧ ψ -> combine all clauses from both sides
+                left_clauses = self._build_aecnf_clauses(formula.left)
+                right_clauses = self._build_aecnf_clauses(formula.right)
+                return left_clauses + right_clauses
+            
+            elif formula.operator == '∨':
+                # φ ∨ ψ -> create cross product of clauses (distribution)
+                left_clauses = self._build_aecnf_clauses(formula.left)
+                right_clauses = self._build_aecnf_clauses(formula.right)
+                
+                if len(left_clauses) == 1 and len(right_clauses) == 1:
+                    # Simple case: merge into one clause
+                    merged_clause = self._merge_aecnf_clauses(left_clauses[0], right_clauses[0])
+                    return [merged_clause]
+                else:
+                    # Complex case: for now, create a single clause with disjunction
+                    # This is a simplification - full CNF conversion is more complex
+                    objective = ObjectiveFormula(formula)
+                    return [AECNFClause(objective, {}, {})]
+            
+            else:  # →, ↔ etc.
+                # Convert to basic connectives
+                if formula.operator == '→':
+                    equiv = BinaryConnective(
+                        Negation(formula.left), formula.right, '∨'
+                    )
+                elif formula.operator == '↔':
+                    left_to_right = BinaryConnective(
+                        Negation(formula.left), formula.right, '∨'
+                    )
+                    right_to_left = BinaryConnective(
+                        Negation(formula.right), formula.left, '∨'
+                    )
+                    equiv = BinaryConnective(left_to_right, right_to_left, '∧')
+                else:
+                    equiv = formula
+                
+                return self._build_aecnf_clauses(equiv)
+        
+        elif isinstance(formula, Knowledge):
+            # K_a φ -> create clause with positive knowledge
+            agent = formula.agent
+            inner_formula = formula.formula
+            
+            if self._is_objective_for_agent(inner_formula, agent):
+                # φ is a-objective, add to positive knowledge
+                pos_knowledge = {agent: [ObjectiveFormula(inner_formula)]}
+                return [AECNFClause(None, {}, pos_knowledge)]
+            else:
+                # φ is not a-objective, treat as objective formula for now
+                objective = ObjectiveFormula(formula)
+                return [AECNFClause(objective, {}, {})]
+        
         else:
-            # Multiple clauses: this requires complex distribution
-            # For now, create a simplified AECNF representation
-            return self._multiple_aednf_to_aecnf(aednf)
+            # Simplified handling for other cases
+            objective = ObjectiveFormula(formula)
+            return [AECNFClause(objective, {}, {})]
     
-    def _single_aednf_to_aecnf(self, aednf_clause: AEDNFClause, modal_depth: int) -> AECNF:
-        """Convert a single AEDNF clause to AECNF"""
-        # For a single AEDNF clause: α ∧ ⋀_a K_a φ_a ∧ ⋀_a,j ¬K_a ψ_{a,j}
-        # The equivalent AECNF is the same formula represented as conjunction
+    def _merge_aecnf_clauses(self, clause1: AECNFClause, clause2: AECNFClause) -> AECNFClause:
+        """Merge two AECNF clauses (disjunction)"""
+        # Merge objective parts (disjunction)
+        merged_objective = None
+        if clause1.objective and clause2.objective:
+            merged_objective = ObjectiveFormula(
+                BinaryConnective(clause1.objective.formula, clause2.objective.formula, '∨')
+            )
+        elif clause1.objective:
+            merged_objective = clause1.objective  
+        elif clause2.objective:
+            merged_objective = clause2.objective
         
-        aecnf_clauses = []
-        
-        # Add objective part as separate clause if present
-        if aednf_clause.objective:
-            obj_clause = AECNFClause(aednf_clause.objective, {}, {})
-            aecnf_clauses.append(obj_clause)
-        
-        # Add positive knowledge as separate clauses
-        for agent, formula in aednf_clause.positive_knowledge.items():
-            pos_clause = AECNFClause(None, {}, {agent: [formula]})
-            aecnf_clauses.append(pos_clause)
-        
-        # Add negative knowledge as separate clauses
-        for agent, formulas in aednf_clause.negative_knowledge.items():
-            for formula in formulas:
-                neg_clause = AECNFClause(None, {agent: formula}, {})
-                aecnf_clauses.append(neg_clause)
-        
-        # If no clauses were created, return a tautology
-        if not aecnf_clauses:
-            # Empty clause in AECNF represents ⊤
-            aecnf_clauses = [AECNFClause(ObjectiveFormula(Proposition('⊤')), {}, {})]
-        
-        return AECNF(aecnf_clauses, modal_depth)
-    
-    def _multiple_aednf_to_aecnf(self, aednf: AEDNF) -> AECNF:
-        """Convert multiple AEDNF clauses to AECNF"""
-        # For multiple AEDNF clauses (C₁ ∨ C₂ ∨ ... ∨ Cₙ)
-        # We need to convert to CNF form
-        
-        # This is a complex transformation. For now, implement a simplified version
-        # that creates a single AECNF clause representing the disjunction
-        
-        # Collect all components from all clauses
-        all_objectives = []
-        all_pos_knowledge = {}
-        all_neg_knowledge = {}
-        
-        for clause in aednf.clauses:
-            if clause.objective:
-                all_objectives.append(clause.objective)
-            
-            for agent, formula in clause.positive_knowledge.items():
-                if agent not in all_pos_knowledge:
-                    all_pos_knowledge[agent] = []
-                all_pos_knowledge[agent].append(formula)
-            
-            for agent, formulas in clause.negative_knowledge.items():
-                if agent not in all_neg_knowledge:
-                    all_neg_knowledge[agent] = []
-                all_neg_knowledge[agent].extend(formulas)
-        
-        # Create a single AECNF clause with disjunction of objectives
-        if len(all_objectives) > 1:
-            # Create disjunction of all objectives
-            combined_obj = all_objectives[0]
-            for obj in all_objectives[1:]:
-                combined_obj = ObjectiveFormula(
-                    BinaryConnective(combined_obj.formula, obj.formula, '∨')
+        # Merge negative knowledge (disjunction)
+        merged_neg = clause1.negative_knowledge.copy()
+        for agent, formula in clause2.negative_knowledge.items():
+            if agent in merged_neg:
+                # ¬K_a φ₁ ∨ ¬K_a φ₂ = ¬K_a (φ₁ ∧ φ₂) (by modal logic)
+                combined = ObjectiveFormula(
+                    BinaryConnective(merged_neg[agent].formula, formula.formula, '∧')
                 )
-        elif len(all_objectives) == 1:
-            combined_obj = all_objectives[0]
-        else:
-            combined_obj = None
+                merged_neg[agent] = combined
+            else:
+                merged_neg[agent] = formula
         
-        # For knowledge components, in a disjunction they become more complex
-        # This is a simplified representation
-        aecnf_clause = AECNFClause(combined_obj, {}, all_pos_knowledge)
+        # Merge positive knowledge (disjunction)
+        merged_pos = clause1.positive_knowledge.copy()
+        for agent, formulas in clause2.positive_knowledge.items():
+            if agent in merged_pos:
+                merged_pos[agent].extend(formulas)
+            else:
+                merged_pos[agent] = formulas[:]
         
-        return AECNF([aecnf_clause], aednf.modal_depth)
+        return AECNFClause(merged_objective, merged_neg, merged_pos)
     
     def _simplify_aednf(self, aednf: AEDNF) -> AEDNF:
         """Simplify AEDNF - remove unsatisfiable terms"""
@@ -750,8 +788,28 @@ def generate_test_formulas(num_formulas: int = 10) -> List[EpistemicFormula]:
     
     return formulas
 
-def load_formulas_from_json(filename: str) -> List[EpistemicFormula]:
+def find_latest_epistemic_json() -> str:
+    """Find the latest epistemic formulas JSON file"""
+    import glob
+    import os
+    
+    pattern = "epistemic_formulas_*.json"
+    json_files = glob.glob(pattern)
+    
+    if not json_files:
+        return None
+    
+    latest_file = max(json_files, key=os.path.getmtime)
+    return latest_file
+
+def load_formulas_from_json(filename: str = None) -> List[EpistemicFormula]:
     """Load formulas from JSON file"""
+    if filename is None:
+        filename = find_latest_epistemic_json()
+        if filename is None:
+            raise FileNotFoundError("No epistemic formulas JSON file found")
+        print(f"Auto-detected JSON file: {filename}")
+    
     with open(filename, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
@@ -767,6 +825,8 @@ def load_formulas_from_json(filename: str) -> List[EpistemicFormula]:
 
 # Main program
 def main():
+    import sys
+    
     print("AEDNF/AECNF Converter Test")
     print("=" * 50)
     
@@ -774,12 +834,19 @@ def main():
     agents = [1, 2, 3]
     converter = AEDNFAECNFConverter(agents)
     
+    # 检查命令行参数
+    input_file = None
+    if len(sys.argv) > 1:
+        input_file = sys.argv[1]
+        print(f"Using input file from command line: {input_file}")
+    
     # Load formulas from JSON file
     try:
-        formulas = load_formulas_from_json('epistemic_formulas_20250624_005616.json')
+        formulas = load_formulas_from_json(input_file)  # 如果input_file为None，会自动检测最新文件
         print(f"Loaded {len(formulas)} formulas from JSON file")
-    except FileNotFoundError:
-        print("JSON file not found, using generated test formulas")
+    except FileNotFoundError as e:
+        print(f"JSON file not found: {e}")
+        print("Using generated test formulas instead")
         formulas = generate_test_formulas(8)
     
     # Run benchmark on all formulas
