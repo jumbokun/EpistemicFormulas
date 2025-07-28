@@ -7,8 +7,6 @@ import random
 import time
 import signal
 import json
-import platform
-import os
 
 SAVE_FOLDER = "exp4_0425"
 # Table T(u)-> (i,l,h) and H(i,l,h)-> u
@@ -20,9 +18,7 @@ MAXSIZE=10000000000
 def handler(signum, frame):
     raise TimeoutError
 
-# Only set up signal handler on Unix-like systems
-if platform.system() != 'Windows':
-    signal.signal(signal.SIGALRM, handler)
+signal.signal(signal.SIGALRM, handler)
 kp_threshold = 100000
 
 node_counter = 2
@@ -260,39 +256,6 @@ def display(x: Node)-> str:
         rlt = "(K" + str(display(branch_cache[nodeID_2_key[-x.var_id]])) + "? " + display(x.when1) + ": " + display(x.when0) + ")"
 
     return rlt
-
-def display_traditional(x: Node) -> str:
-    """
-    Display formula in traditional logical notation.
-    """
-    if x.id == true_id: 
-        return "⊤"
-    if x.id == false_id:
-        return "⊥"
-    if x.var_id > 0:
-        var_name = str(number_2_symbol[x.var_id])
-        when1_str = display_traditional(x.when1)
-        when0_str = display_traditional(x.when0)
-        
-        # Simplify common cases
-        if when1_str == "⊤" and when0_str == "⊥":
-            return var_name
-        elif when1_str == "⊥" and when0_str == "⊤":
-            return f"¬{var_name}"
-        else:
-            return f"({var_name} ∧ {when1_str}) ∨ (¬{var_name} ∧ {when0_str})"
-    else:
-        # This is a knowledge operator
-        inner_formula = display_traditional(branch_cache[nodeID_2_key[-x.var_id]])
-        when1_str = display_traditional(x.when1)
-        when0_str = display_traditional(x.when0)
-        
-        if when1_str == "⊤" and when0_str == "⊥":
-            return f"K({inner_formula})"
-        elif when1_str == "⊥" and when0_str == "⊤":
-            return f"¬K({inner_formula})"
-        else:
-            return f"(K({inner_formula}) ∧ {when1_str}) ∨ (¬K({inner_formula}) ∧ {when0_str})"
 
 
 # function NOT(node: ENode): ENode { return negate(node); }
@@ -658,131 +621,6 @@ def gimea_formula(num_var, complexity, deg_nesting=1):
     else:
         return K(gimea_formula(num_var=num_var, complexity=complexity-1, deg_nesting=deg_nesting-1))
 
-def generate_objective_formula(num_var, complexity):
-    """
-    Generates a purely propositional formula (AECNF_0/AEDNF_0).
-    This is a helper for the alternating normal form generators.
-    """
-    if complexity <= 1:
-        var_dice = random.randint(0, num_var-1)
-        return V('v'+str(var_dice))
-    
-    if complexity == 2:
-        # Simple negation
-        var_dice = random.randint(0, num_var-1)
-        return NOT(V('v'+str(var_dice)))
-    
-    # For complexity >= 3, choose an operation
-    op_dice = random.randint(0, 2)  # 0: AND, 1: OR, 2: NOT
-    
-    if op_dice == 0:  # AND
-        left_complexity = max(1, complexity // 2)
-        right_complexity = max(1, complexity - left_complexity)
-        return AND(generate_objective_formula(num_var, left_complexity), 
-                  generate_objective_formula(num_var, right_complexity))
-    elif op_dice == 1:  # OR
-        left_complexity = max(1, complexity // 2)
-        right_complexity = max(1, complexity - left_complexity)
-        return OR(generate_objective_formula(num_var, left_complexity), 
-                 generate_objective_formula(num_var, right_complexity))
-    else:  # NOT
-        return NOT(generate_objective_formula(num_var, complexity - 1))
-
-def generate_aednf(depth, num_var, complexity):
-    """
-    Generates a formula in Alternating Epistemic DNF (AEDNF).
-    """
-    if depth == 0:
-        return generate_objective_formula(num_var, complexity)
-
-    if complexity < 3: # Need at least 3 for alpha AND K(v)
-        return generate_objective_formula(num_var, complexity)
-
-    # An AEDNF is a disjunction of terms
-    num_terms = min(2, max(1, complexity // 4))  # Limit to 2 terms max
-    complexity_per_term = complexity // num_terms if num_terms > 0 else complexity
-
-    final_formula = false_node
-    for _ in range(num_terms):
-        # Each term is a conjunction of an objective part and a subjective part
-        if complexity_per_term <= 1:
-            term = generate_objective_formula(num_var, 1)
-        else:
-            alpha_complexity = max(1, complexity_per_term // 2)
-            term = generate_objective_formula(num_var, alpha_complexity)
-
-            remaining_complexity = complexity_per_term - alpha_complexity
-            if remaining_complexity > 1:
-                # Add at most one epistemic literal
-                sub_complexity = max(1, remaining_complexity - 1)
-                
-                # Subformula must be a-objective, which is guaranteed by construction
-                # since it won't start with K.
-                if random.random() > 0.5:
-                    sub_formula = generate_aednf(depth - 1, num_var, sub_complexity)
-                else:
-                    sub_formula = generate_aecnf(depth - 1, num_var, sub_complexity)
-
-                # Add K(sub) or ~K(sub) to the term
-                if random.random() > 0.5:
-                    term = AND(term, K(sub_formula))
-                else:
-                    term = AND(term, NOT(K(sub_formula)))
-
-        final_formula = OR(final_formula, term)
-
-    return final_formula
-
-
-def generate_aecnf(depth, num_var, complexity):
-    """
-    Generates a formula in Alternating Epistemic CNF (AECNF).
-    """
-    if depth == 0:
-        return generate_objective_formula(num_var, complexity)
-
-    if complexity < 3: # Need at least 3 for alpha OR K(v)
-        return generate_objective_formula(num_var, complexity)
-
-    # An AECNF is a conjunction of clauses
-    num_clauses = min(2, max(1, complexity // 4))  # Limit to 2 clauses max
-    complexity_per_clause = complexity // num_clauses if num_clauses > 0 else complexity
-    
-    final_formula = true_node
-    for i in range(num_clauses):
-        # Each clause is a disjunction of an objective part and a subjective part
-        if complexity_per_clause <= 1:
-            clause = generate_objective_formula(num_var, 1)
-        else:
-            alpha_complexity = max(1, complexity_per_clause // 2)
-            clause = generate_objective_formula(num_var, alpha_complexity)
-
-            remaining_complexity = complexity_per_clause - alpha_complexity
-            if remaining_complexity > 1:
-                # Add at most one epistemic literal
-                sub_complexity = max(1, remaining_complexity - 1)
-                
-                # Subformula must be a-objective
-                if random.random() > 0.5:
-                    sub_formula = generate_aednf(depth - 1, num_var, sub_complexity)
-                else:
-                    sub_formula = generate_aecnf(depth - 1, num_var, sub_complexity)
-
-                # Add K(sub) or ~K(sub) to the clause
-                if random.random() > 0.5:
-                    clause = OR(clause, K(sub_formula))
-                else:
-                    clause = OR(clause, NOT(K(sub_formula)))
-
-        final_formula = AND(final_formula, clause)
-    
-    # Ensure we don't return just false
-    if final_formula.id == false_id:
-        # If we got false, return a simple objective formula instead
-        return generate_objective_formula(num_var, complexity)
-    
-    return final_formula
-
 def dep(node:Node):
     if node.id==true_id or node.id==false_id:
         return 1
@@ -835,7 +673,7 @@ reset_cache()
 # test_out("reflexivity", implies(K(V("p")), V("p")), use_s5=True)
 # test_out("reflexivity2", implies(K(AND(V("p"), NOT(V("r")))), V("p")), use_s5=True)
 # test_out("truthfulness", AND(K(V("p")),AND(NOT(V("p")), V("q"))), use_s5=True, sat_check=True)
-# test_out("S5", implies(K(implies(V("p"), V("q"))),implies(negate(V("q")), negate(K(V('p'))))), use_s5=True)
+test_out("S5", implies(K(implies(V("p"), V("q"))),implies(negate(V("q")), negate(K(V('p'))))), use_s5=True)
 # test_out("knowing true", K(true_node))
 # test_out("knowing true 2", K(implies(V("p"), OR(V("p"), V("q")))))
 # test_out("consistency", implies(K(V("p")), NOT(K(NOT(V("p"))))))
@@ -851,124 +689,202 @@ reset_cache()
 # test_out("negative Introspection 2", implies(NOT(K(AND(V("q"),K(V("p"))))), K(NOT(K(AND(V("q"),K(V("p"))))))))
 
 
-# =======================================================
-#               Verification Test Block
-# =======================================================
-print("\n" + "="*60)
+############################
 
 
-def convert_to_aednf(formula: Node, depth: int) -> Node:
-    """
-    Convert an arbitrary epistemic formula to AEDNF format.
-    If the formula is already close to AEDNF structure, keep it.
-    Otherwise, do minimal conversion.
-    """
-    if depth == 0:
-        return formula
-    
-    # Check if the formula is already in AEDNF-like structure
-    # If it's already a disjunction of conjunctions, return as is
-    if is_aednf_like(formula):
-        return formula
-    
-    # Otherwise, do minimal conversion
-    # Create a simple AEDNF: original_formula ∧ K(simple_alpha)
-    simple_alpha = generate_objective_formula(3, 2)
-    return AND(formula, K(simple_alpha))
+num_test = 200
+num_var=30
+max_len = 501
+len_gap = 25
+dropout=0.1
+# max_nesting = 5
+# for num_var in range (5,30,5):
+# var_list = [15,30,45]
+max_nesting=0
 
-def convert_to_aecnf(formula: Node, depth: int) -> Node:
-    """
-    Convert an arbitrary epistemic formula to AECNF format.
-    If the formula is already close to AECNF structure, keep it.
-    Otherwise, do minimal conversion.
-    """
-    if depth == 0:
-        return formula
-    
-    # Check if the formula is already in AECNF-like structure
-    # If it's already a conjunction of disjunctions, return as is
-    if is_aecnf_like(formula):
-        return formula
-    
-    # Otherwise, do minimal conversion
-    # Create a simple AECNF: original_formula ∨ K(simple_alpha)
-    simple_alpha = generate_objective_formula(3, 2)
-    return OR(formula, K(simple_alpha))
+avg_kp_size_dict = {}
+avg_og_size_dict = {}
+# worst_kp_size_list = []
+time_dict = {}
+com_list = range(len_gap,max_len,len_gap)
 
-def is_aednf_like(formula: Node) -> bool:
-    """
-    Check if a formula is already in AEDNF-like structure.
-    This is a simplified check.
-    """
-    # For simplicity, we'll just check if it's a disjunction
-    # In practice, this would be more sophisticated
-    return True  # Simplified for now
-
-def is_aecnf_like(formula: Node) -> bool:
-    """
-    Check if a formula is already in AECNF-like structure.
-    This is a simplified check.
-    """
-    # For simplicity, we'll just check if it's a conjunction
-    # In practice, this would be more sophisticated
-    return True  # Simplified for now
+colors = ['red', 'green', 'blue','black','cyan','magenta']
 
 
-# =======================================================
-#               Verification Test Block
-# =======================================================
-print("\n" + "="*50)
-print("             VERIFYING AEDNF/AECNF CONVERSION")
-print("="*50 + "\n")
+        
+for c in com_list:
+    for deg_nesting in [0,1]:
+        for num_var in [15,30,45]:
+            exp_key = "({},{})".format(str(deg_nesting),str(num_var))
+            if exp_key not in avg_kp_size_dict:
+                avg_kp_size_dict[exp_key]=[]
+                avg_og_size_dict[exp_key]=[]
+                time_dict[exp_key]=[]
+            
+            start_time = time.time()
+            c_og_size_list = []
+            c_avg_size_list = []
+            c_time_list = []
+            count_maxsize=0
+            # ori_sum = 0
 
-# --- Test Parameters ---
-test_depth = 3
-test_vars = 5
-test_complexity = 10
+            for i in range(num_test):
+                cur_start = time.time()
 
-# --- Test: Generate arbitrary formula and convert to AEDNF/AECNF ---
-print(f"--- Generating arbitrary epistemic formula and converting to AEDNF/AECNF ---")
-print(f"Parameters: depth={test_depth}, vars={test_vars}, complexity={test_complexity}")
-reset_cache()
+                complexity = c + random.randint(0,len_gap)
+                # print("num_var: " + str(num_var) + ", complexity: " + str(complexity))
 
-# Step 1: Generate an arbitrary epistemic formula
-print("\n" + "="*60)
-print("STEP 1: Generate arbitrary epistemic formula")
-print("="*60)
-original_formula = gimea_formula(num_var=test_vars, complexity=test_complexity, deg_nesting=test_depth)
-print("Original formula (OBDD format):")
-print(display(original_formula))
-print("\nOriginal formula (Traditional format):")
-print(display_traditional(original_formula))
+                ####################
+                # reset caches
+                reset_cache()
+                #######################
+                # reset_cache()
+                # print(len(branch_cache))
+                assert len(branch_cache)==2
+                try:
+                    max_duration = 10
+                    signal.alarm(max_duration)
+                    formula = gimea_formula(num_var=num_var, complexity=complexity, deg_nesting=deg_nesting)
 
-# Step 2: Convert to AEDNF
-print("\n" + "="*60)
-print("STEP 2: Convert to AEDNF (Alternating Epistemic DNF)")
-print("="*60)
-aednf_formula = convert_to_aednf(original_formula, test_depth)
-print("AEDNF formula (OBDD format):")
-print(display(aednf_formula))
-print("\nAEDNF formula (Traditional format):")
-print(display_traditional(aednf_formula))
-print("\nChecklist for AEDNF:")
-print("1. Is the top-level structure a disjunction (ORs)?")
-print("2. Is each term a conjunction (ANDs)?")
-print("3. Is there any forbidden 'K(K(...))' nesting?")
+                # print(display(formula))
+                    kp_form = propagate_Knowledge(formula)
+                    # kp_form = formula
+                    # if 2*len(rt_edges_list(formula)) < len(rt_edges_list(kp_form)):
+                    #     print("original size:{}, Kp size:{}".format(str(len(rt_edges_list(formula))), str(len(rt_edges_list(kp_form)))))
+                    #     # print(display(formula))
+                    #     print("########################")
+                    #     # print(display(kp_form))
+                    # if 2*len(rt_nodes_list(formula)) < len(rt_nodes_list(kp_form)):
+                    #     print("original size:{}, Kp size:{}".format(str(len(rt_nodes_list(formula))), str(len(rt_nodes_list(kp_form)))))
+                    #     # print(rt_nodes_list(formula))
+                    #     print("########################")
+                    #     # print(rt_nodes_list(kp_form))
+                    #     assert False
+                    # assert len(rt_nodes_list(formula)) >= len(rt_nodes_list(kp_form))
+                    signal.alarm(0)
+                except TimeoutError:
+                    print("Test{}: duration more than {}s".format(str(i), str(max_duration)))
+                    kp_size = MAXSIZE
+                    c_avg_size_list.append(kp_size)
+                    duration = MAXSIZE
+                    c_time_list.append(duration)
+                    count_maxsize +=1
+                    assert count_maxsize < dropout*num_test
+                    continue
+                # test_ordering(kp_form)
+                # print(display(kp_form))
+                # print("formula_depth: " + str(dep(formula)) + " kp_depth: " + str(dep(kp_form)))
+                # print("##########")
+                # ori_sum += len(rt_edges_list(formula))
+                cur_end = time.time()
+                duration = cur_end - cur_start
+                c_time_list.append(duration)
+                # print("Test{}".format(str(i)))
+                evar_size = len(rt_evar_list(kp_form))
+                og_evar_size = len(rt_evar_list(formula))
+                og_size = len(rt_nodes_list(formula))
+                kp_size = len(rt_nodes_list(kp_form))
+                # if len(rt_pos_Edep(kp_form)) > num_var:
+                #     # check_rlt = concise_check(node=kp_form, formula=true_node)
+                #     print("num_var:{}, Edep:{}, pos_Edep:{}".format(str(num_var), str(len(rt_Edep(kp_form))),str(len(rt_pos_Edep(kp_form)))))
+                #     if len(rt_Edep(kp_form)) >= 2**(num_var+1):
+                #         print(display(kp_form))
+                #         assert False 
+                    # assert concise_check(node=kp_form, formula=true_node)
+                    # print(rt_Edep(kp_form))
+                # assert rt_Edep(kp_form)<= num_var
+                c_og_size_list.append(og_size)
+                c_avg_size_list.append(kp_size)
+                
+                if duration > 0.1:
+                    pass
+                    print("Test {}-{}: duration:{}, #Evar: {}->{}, Size: {}->{}".format(exp_key,str(i),str(duration), str(og_evar_size),str(evar_size),str(og_size),str(kp_size)))
+                # if good_order + bad_order >0:
+                #     print("good_order={}, bad_order={}, good ratio {}%".format(str(good_order), str(bad_order), str(100.0*good_order/(good_order+bad_order))))
+            end_time = time.time()
+            c_avg_size_list.sort()
+            c_og_size_list.sort()
+            c_time_list.sort()
+            list_len = len(c_avg_size_list)
+            assert list_len == len(c_time_list)
+            size_avg = sum(c_avg_size_list[int(list_len*dropout):list_len-int(list_len*dropout)])*1.0/len(c_avg_size_list[int(list_len*dropout):list_len-int(list_len*dropout)])
+            og_size_avg = sum(c_og_size_list[int(list_len*dropout):list_len-int(list_len*dropout)])*1.0/len(c_og_size_list[int(list_len*dropout):list_len-int(list_len*dropout)])
+            time_avg = sum(c_time_list[int(list_len*dropout):list_len-int(list_len*dropout)])*1.0/len(c_time_list[int(list_len*dropout):list_len-int(list_len*dropout)])
+            avg_kp_size_dict[exp_key].append(size_avg)
+            avg_og_size_dict[exp_key].append(og_size_avg)
+            time_dict[exp_key].append(time_avg*1000)
+            print("Finish running examples of length:{}, using time {} s, 5-95% {}".format(str(c), str(end_time - start_time), str(time_avg*num_test*(1-2*dropout))))
+            ###
+            # axiom test
+            # reset_cache()
+            # complexity = c + random.randint(0,len_gap)
+            # alpha = gimea_formula(num_var=num_var, complexity=complexity, deg_nesting=max_nesting)
+            # complexity = c + random.randint(0,10)
+            # beta = gimea_formula(num_var=num_var, complexity=complexity, deg_nesting=max_nesting)
 
-# Step 3: Convert to AECNF
-print("\n" + "="*60)
-print("STEP 3: Convert to AECNF (Alternating Epistemic CNF)")
-print("="*60)
-aecnf_formula = convert_to_aecnf(original_formula, test_depth)
-print("AECNF formula (OBDD format):")
-print(display(aecnf_formula))
-print("\nAECNF formula (Traditional format):")
-print(display_traditional(aecnf_formula))
-print("\nChecklist for AECNF:")
-print("1. Is the top-level structure a conjunction (ANDs)?")
-print("2. Is each clause a disjunction (ORs)?")
-print("3. Is there any forbidden 'K(K(...))' nesting?")
-print("\n" + "="*60)
+            # assert test_out("reflexivity", implies(K(alpha), alpha), use_s5=True)
+            # assert not test_out("truthfulness", AND(K(alpha),AND(NOT(alpha), beta)), use_s5=True, sat_check=True)
+            # assert test_out("knowing true 2", K(implies(alpha, OR(alpha, beta))))
+            # assert test_out("consistency", implies(K(alpha), NOT(K(NOT(alpha)))))
+            # # assert test_out("false belief", AND(K(alpha), NOT(alpha)), sat_check=True) or alpha.id == false_id or alpha.id == true_id
+            # assert test_out("conjunction distribution 1", implies(conjoin(K(alpha), K(beta)), K(conjoin(alpha, beta))))
+            # assert test_out("conjunction distribution 2", implies(K(conjoin(alpha, beta)), conjoin(K(alpha), K(beta))))
+            # assert test_out("modus ponendo ponens", implies(conjoin(K(implies(alpha, beta)), K(alpha)), K(beta)))
+            # assert test_out("positive introspection", implies(K(alpha), K(K(alpha))))
+            # assert test_out("negative Introspection", implies(NOT(K(alpha)), K(NOT(K(alpha)))))
+            #####
+    with open("./{}/avg_og_size.json".format(SAVE_FOLDER), "w") as f:
+        json.dump(avg_og_size_dict, f, indent=4)
+    with open("./{}/avg_kp_size.json".format(SAVE_FOLDER), "w") as f:
+        json.dump(avg_kp_size_dict, f, indent=4)
+    with open("./{}/avg_time.json".format(SAVE_FOLDER), "w") as f:
+        json.dump(time_dict, f, indent=4)
+
+    fig, ax1 = plt.subplots()
+    for deg_nesting in [0,1]:
+        
+            # exp_key = "({},{})".format(str(deg_nesting),str(num_var))
+        output_length = len(avg_kp_size_dict["({},30)".format(str(deg_nesting))])
+        for num_var in [15,30,45]:
+            ax1.plot(com_list[:output_length], avg_kp_size_dict["({},{})".format(str(deg_nesting),str(num_var))], 
+                     label="dep={},n={}".format(str(deg_nesting),str(num_var)), color=colors[int(deg_nesting*3+ num_var/15-1)])
+    # plt.plot(com_list, avg_ori_size_list, label="avg_ori", color="green")
+    # ax1.plot(com_list, worst_kp_size_list, label="worst size", color="blue")
+    ax1.set_xlabel("Sentence length")
+    ax1.set_ylabel("#Nodes")
+    ax1.legend(loc="upper left")
+    # plt.title("Average #Edge")
+    plt.savefig("./{}/dep0-1_length{}_size.png".format(SAVE_FOLDER,str(max_len)))
+    plt.yscale("log")
+    plt.savefig("./{}/dep0-1_length{}_size_logscale.png".format(SAVE_FOLDER,str(max_len)))
+    plt.clf()
+    plt.close()
+
+    fig, ax1 = plt.subplots()
+    for deg_nesting in [0,1]:
+        
+            # exp_key = "({},{})".format(str(deg_nesting),str(num_var))
+        output_length = len(time_dict["({},30)".format(str(deg_nesting))])
+        for num_var in [15,30,45]:
+            ax1.plot(com_list[:output_length], time_dict["({},{})".format(str(deg_nesting),str(num_var))], 
+                     label="dep={},n={}".format(str(deg_nesting),str(num_var)), color=colors[int(deg_nesting*3+ num_var/15-1)])
+    # plt.plot(com_list, avg_ori_size_list, label="avg_ori", color="green")
+    # ax1.plot(com_list, worst_kp_size_list, label="worst size", color="blue")
+    ax1.set_xlabel("Sentence length")
+    ax1.set_ylabel("Time(ms)")
+    ax1.legend(loc="upper left")
+    # plt.title("Average Time")
+    plt.savefig("./{}/dep0-1_length{}_time.png".format(SAVE_FOLDER,str(max_len)))
+    plt.yscale("log")
+    plt.savefig("./{}/dep0-1_length{}_time_logscale.png".format(SAVE_FOLDER,str(max_len)))
+    plt.clf()
+    plt.close()
+
+
+# print(com_list)
+# print(time_dict)
+# print(avg_kp_size_dict)
+    # plt.cla()
 
 
         
