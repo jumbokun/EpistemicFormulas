@@ -19,8 +19,8 @@ from dataclasses import dataclass
 # 添加父目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from aednf_aecnf import Depth1Builder, reset_cache, display_traditional
-from aednf_aecnf.models import AEDNFAECNFPair
+from archiv import Depth1Builder, reset_cache, display_traditional
+from archiv.models import AEDNFAECNFPair
 
 @dataclass
 class GenerationConfig:
@@ -236,7 +236,7 @@ class FormulaGenerator:
         """计算公式的长度（操作符和原子命题的总数）"""
         if formula.aednf.depth == 0:
             # 深度0公式，计算OBDD节点数
-            from aednf_aecnf.obdd import rt_nodes_list, nodeID_2_key, branch_cache
+            from archiv.obdd import rt_nodes_list, nodeID_2_key, branch_cache
             if formula.aednf.terms:
                 node_id = formula.aednf.terms[0].objective_part.obdd_node_id
                 if node_id in nodeID_2_key:
@@ -255,7 +255,7 @@ class FormulaGenerator:
                     total_length += 0  # ⊤不计算长度
                 else:
                     # 客观部分是一个OBDD，计算其节点数
-                    from aednf_aecnf.obdd import rt_nodes_list, nodeID_2_key, branch_cache
+                    from archiv.obdd import rt_nodes_list, nodeID_2_key, branch_cache
                     if term.objective_part.obdd_node_id in nodeID_2_key:
                         key = nodeID_2_key[term.objective_part.obdd_node_id]
                         node = branch_cache[key]
@@ -313,7 +313,7 @@ class FormulaGenerator:
         """显示AEDNF"""
         if aednf.depth == 0:
             # 深度0，显示OBDD
-            from aednf_aecnf.obdd import nodeID_2_key, branch_cache
+            from archiv.obdd import nodeID_2_key, branch_cache
             if aednf.terms:
                 node_id = aednf.terms[0].objective_part.obdd_node_id
                 if node_id in nodeID_2_key:
@@ -350,7 +350,7 @@ class FormulaGenerator:
         """显示AECNF"""
         if aecnf.depth == 0:
             # 深度0，显示OBDD
-            from aednf_aecnf.obdd import nodeID_2_key, branch_cache
+            from archiv.obdd import nodeID_2_key, branch_cache
             if aecnf.clauses:
                 node_id = aecnf.clauses[0].objective_part.obdd_node_id
                 if node_id in nodeID_2_key:
@@ -385,7 +385,7 @@ class FormulaGenerator:
     
     def _display_objective_part(self, obj_part) -> str:
         """显示客观部分"""
-        from aednf_aecnf.obdd import nodeID_2_key, branch_cache, number_2_symbol
+        from archiv.obdd import nodeID_2_key, branch_cache, number_2_symbol
         node_id = obj_part.obdd_node_id
         
         # 检查是否是特殊节点
@@ -458,7 +458,7 @@ def test_step_by_step():
     print("=== 逐步测试AEDNF/AECNF操作 ===")
     
     # 重置缓存
-    from aednf_aecnf.obdd import reset_cache
+    from archiv.obdd import reset_cache
     reset_cache()
     
     print("\n配置:")
@@ -469,7 +469,7 @@ def test_step_by_step():
     print("\n=== 使用gimea_formula生成公式 ===")
     
     # 直接使用gimea_formula生成OBDD公式
-    from aednf_aecnf.obdd import gimea_formula, display_traditional
+    from archiv.obdd import gimea_formula, display_traditional
     
     formula_node = gimea_formula(num_var=3, complexity=4, deg_nesting=1)
     

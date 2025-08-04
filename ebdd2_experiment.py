@@ -9,7 +9,7 @@ import signal
 import json
 import platform
 
-SAVE_FOLDER = "exp4_0425"
+SAVE_FOLDER = "result"
 # Table T(u)-> (i,l,h) and H(i,l,h)-> u
 # T = {}
 # H = {}
