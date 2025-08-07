@@ -145,7 +145,10 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
             depth=0
         )
         return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=0)
-
+    
+    if formula2.depth == 0 and formula1.depth > 0:
+        return land(formula2, formula1)
+    
     if formula1.depth == 0 and formula2.depth > 0:
         new_terms = []
         for term in formula2.aednf.terms:
@@ -155,78 +158,183 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                 negative_literals=term.negative_literals
             ))
         new_aednf = AEDNF(terms=new_terms, depth=formula2.depth)
+        
+        new_aecnf = AECNF(formula1.aecnf.clauses + formula2.aecnf.clauses, depth=max(formula1.depth, formula2.depth))
+        return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=max(formula1.depth, formula2.depth))
+    
+    if formula1.depth > 0 and formula2.depth > 0:
+        new_aecnf = AECNF(clauses=formula1.aecnf.clauses + formula2.aecnf.clauses, depth=max(formula1.depth, formula2.depth))
+        
+        new_terms = []
+        for term1 in formula1.aednf.terms:
+            for term2 in formula2.aednf.terms:
+                # 对每一对term1和term2,我们需要:
+                # 1. 合并它们的objective_part (用AND)
+                new_objective = ObjectiveFormula(
+                    obdd_node_id=AND(term1.objective_part.obdd_node_id, term2.objective_part.obdd_node_id).id,
+                    description=f"({term1.objective_part.description} ∧ {term2.objective_part.description})"
+                )
+                
+                positive_literals = []
+                agent_to_formulas = {}
+                for lit in term1.positive_literals + term2.positive_literals:
+                    if lit.agent not in agent_to_formulas:
+                        agent_to_formulas[lit.agent] = []
+                    agent_to_formulas[lit.agent].append(lit.formula)
+                
+                # 对每个agent,合并其所有的positive formulas
+                for agent, formulas in agent_to_formulas.items():
+                    if len(formulas) == 1:
+                        positive_literals.append(KnowledgeLiteral(
+                            agent=agent,
+                            formula=formulas[0],
+                            negated=False
+                        ))
+                    else:
+                        # merge formulas with land
+                        merged_formula = formulas[0]
+                        for f in formulas[1:]:
+                            merged_formula = land(merged_formula, f)
+                        positive_literals.append(KnowledgeLiteral(
+                            agent=agent,
+                            formula=merged_formula,
+                            negated=False   
+                        ))
+                # 对于negative literals 只需要简单地堆叠
+                negative_literals = term1.negative_literals + term2.negative_literals
+                
+                new_term = AEDNFTerm(
+                    objective_part=new_objective,
+                    positive_literals=positive_literals,
+                    negative_literals=negative_literals
+                )
+                new_terms.append(new_term)
+            
+        new_aednf = AEDNF(terms=new_terms, depth=max(formula1.depth, formula2.depth))
 
-    # 新的AEDNF = 原先AEDNF的与
-    # 对于AEDNF中的每个term，我们需要将其转换为AECNF的clause
+        return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=max(formula1.depth, formula2.depth))
     
-    # 新的AECNF = 原先AECNF的与
-    # 直接合并两个AECNF的子句
-    new_clauses = formula1.aecnf.clauses + formula2.aecnf.clauses
+    return Exception("Invalid input")
+
+def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
+    """
+    逻辑或
+    """
+
+    if formula1.depth == 0 and formula2.depth == 0:
+        # Both "propositional". Simply do a obdd or.
+        new_aednf = AEDNF(
+            terms=[AEDNFTerm(
+                objective_part=ObjectiveFormula(
+                    obdd_node_id=OR(formula1.aednf.terms[0].objective_part.obdd_node_id, formula2.aednf.terms[0].objective_part.obdd_node_id).id,
+                    description=f"({formula1.aednf.terms[0].objective_part.description} ∨ {formula2.aednf.terms[0].objective_part.description})"
+                ),
+                positive_literals=[],
+                negative_literals=[]
+            )],
+            depth=0
+        )
+        new_aecnf = AECNF(
+            clauses=[AECNFClause(
+                objective_part=ObjectiveFormula(
+                    obdd_node_id=AND(formula1.aecnf.clauses[0].objective_part.obdd_node_id, formula2.aecnf.clauses[0].objective_part.obdd_node_id).id,
+                    description=f"({formula1.aecnf.clauses[0].objective_part.description} ∧ {formula2.aecnf.clauses[0].objective_part.description})"
+                ),
+                positive_literals=[],
+                negative_literals=[]
+            )],
+            depth=0
+        )
+        return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=0)
     
-    new_aecnf = AECNF(
-        clauses=new_clauses,
-        depth=max(formula1.depth, formula2.depth)
-    )
+    if formula1.depth > 0 and formula2.depth == 0:
+        return lor(formula2, formula1)
     
-    # 新的AEDNF = 原先AEDNF的与
-    # 通过分配律展开: f = lor(i,j) (phi1,i land phi2,j)
-    new_terms = []
-    for term1 in formula1.aednf.terms:
-        for term2 in formula2.aednf.terms:
-            # 对每一对term1和term2,我们需要:
-            # 1. 合并它们的objective_part (用AND)
-            new_objective = ObjectiveFormula(
-                obdd_node_id=AND(term1.objective_part.obdd_node_id, term2.objective_part.obdd_node_id).id,
-                description=f"({term1.objective_part.description} ∧ {term2.objective_part.description})"
-            )
-            
-            positive_literals = []
-            agent_to_formulas = {}
-            for lit in term1.positive_literals + term2.positive_literals:
-                if lit.agent not in agent_to_formulas:
-                    agent_to_formulas[lit.agent] = []
-                agent_to_formulas[lit.agent].append(lit.formula)
-            
-            # 对每个agent,合并其所有的positive formulas
-            for agent, formulas in agent_to_formulas.items():
-                if len(formulas) == 1:
-                    positive_literals.append(KnowledgeLiteral(
-                        agent=agent,
-                        formula=formulas[0],
-                        negated=False
-                    ))
-                else:
-                    merged_obdd_id = formulas[0].obdd_node_id
-                    for f in formulas[1:]:
-                        merged_obdd_id = AND(merged_obdd_id, f.obdd_node_id).id
-                    
-                    merged_formula = ObjectiveFormula(
-                        obdd_node_id=merged_obdd_id,
-                        description="(" + " ∧ ".join(f.description for f in formulas) + ")"
-                    )
-                    
-                    positive_literals.append(KnowledgeLiteral(
-                        agent=agent,
-                        formula=merged_formula,
-                        negated=False
-                    ))
-                    
-            negative_literals = term1.negative_literals + term2.negative_literals
-            
-            new_term = AEDNFTerm(
-                objective_part=new_objective,
-                positive_literals=positive_literals,
-                negative_literals=negative_literals
-            )
-            new_terms.append(new_term)
-            
-    new_aednf = AEDNF(
-        terms=new_terms,
-        depth=max(formula1.depth, formula2.depth)
-    )
+    if formula1.depth == 0 and formula2.depth > 0:
+        new_aednf = AEDNF(terms=formula1.aednf.terms + formula2.aednf.terms, depth=formula2.depth)
+        new_clauses = []
+        
+        for clause in formula2.aecnf.clauses:
+            new_clauses.append(AECNFClause(
+                objective_part= OR(formula1.aednf.terms[0].objective_part.obdd_node_id, clause.objective_part.obdd_node_id),
+                positive_literals=clause.positive_literals,
+                negative_literals=clause.negative_literals
+            ))
+        new_aecnf = AEDNF(terms=new_clauses, depth=formula2.depth)
+        return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=formula2.depth)
     
-    return AEDNFAECNFPair(
-        aednf=new_aednf,
-        aecnf=new_aecnf,
-        depth=max(formula1.depth, formula2.depth)
-    )
+    if formula1.depth > 0 and formula2.depth > 0:
+        new_aednf = AEDNF(terms=formula1.aednf.terms + formula2.aednf.terms, depth=max(formula1.depth, formula2.depth))
+        
+        new_clauses = []
+        for clause1 in formula1.aecnf.clauses:
+            for clause2 in formula2.aecnf.clauses:
+                # 对每一对term1和term2,我们需要:
+                # 1. 合并它们的objective_part (用AND)
+                new_objective = ObjectiveFormula(
+                    obdd_node_id=OR(clause1.objective_part.obdd_node_id, clause2.objective_part.obdd_node_id).id,
+                    description=f"({clause1.objective_part.description} ∨ {clause2.objective_part.description})"
+                )
+                
+                negative_literals = []
+                agent_to_formulas = {}
+                for lit in clause1.positive_literals + clause2.positive_literals:
+                    if lit.agent not in agent_to_formulas:
+                        agent_to_formulas[lit.agent] = []
+                    agent_to_formulas[lit.agent].append(lit.formula)
+                
+                # 对每个agent,合并其所有的negative formulas
+                for agent, formulas in agent_to_formulas.items():
+                    if len(formulas) == 1:
+                        negative_literals.append(KnowledgeLiteral(
+                            agent=agent,
+                            formula=formulas[0],
+                            negated=False
+                        ))
+                    else:
+                        # merge formulas with land
+                        merged_formula = formulas[0]
+                        for f in formulas[1:]:
+                            merged_formula = lor(merged_formula, f)
+                        negative_literals.append(KnowledgeLiteral(
+                            agent=agent,
+                            formula=merged_formula,
+                            negated=False   
+                        ))
+                        
+                positive_literals = clause1.positive_literals + clause2.positive_literals
+                
+                new_clause = AECNFClause(
+                    objective_part=new_objective,
+                    positive_literals=positive_literals,
+                    negative_literals=negative_literals
+                )
+                new_clauses.append(new_clause)
+            
+        new_aecnf = AECNF(clauses=new_clauses, depth=max(formula1.depth, formula2.depth))
+
+def know(formula: AEDNFAECNFPair, agent: str) -> AEDNFAECNFPair:
+    """
+    逻辑知道
+    """
+    if formula.depth == 0:
+        new_literal = KnowledgeLiteral(
+            agent=agent,
+            formula=formula.aednf.terms[0].objective_part,
+            negated=False
+        )
+        new_clause  = AECNFClause(
+            objective_part=ObjectiveFormula(),
+            positive_literals=[new_literal],
+            negative_literals=[]
+        )
+        new_term = AEDNFTerm(
+            objective_part=ObjectiveFormula(),
+            positive_literals=[new_literal],
+            negative_literals=[]
+        )
+        new_aednf = AEDNF(terms=[new_term], depth=1)
+        new_aecnf = AECNF(clauses=[new_clause], depth=1)
+        return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=1)
+    
+        
