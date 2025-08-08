@@ -38,7 +38,8 @@ def lnot(formula: AEDNFAECNFPair) -> AEDNFAECNFPair:
             negated_lit = KnowledgeLiteral(
                 agent=lit.agent,
                 formula=lit.formula,
-                negated=True
+                negated=True,
+                depth=lit.depth
             )
             negative_literals.append(negated_lit)
         
@@ -46,7 +47,8 @@ def lnot(formula: AEDNFAECNFPair) -> AEDNFAECNFPair:
             negated_lit = KnowledgeLiteral(
                 agent=lit.agent,
                 formula=lit.formula,
-                negated=False
+                negated=False,
+                depth=lit.depth
             )
             positive_literals.append(negated_lit)
         
@@ -86,7 +88,8 @@ def lnot(formula: AEDNFAECNFPair) -> AEDNFAECNFPair:
             negated_lit = KnowledgeLiteral(
                 agent=lit.agent,
                 formula=lit.formula,
-                negated=True
+                negated=True,
+                depth=lit.depth
             )
             negative_literals.append(negated_lit)
         
@@ -94,7 +97,8 @@ def lnot(formula: AEDNFAECNFPair) -> AEDNFAECNFPair:
             negated_lit = KnowledgeLiteral(
                 agent=lit.agent,
                 formula=lit.formula,
-                negated=False
+                negated=False,
+                depth=lit.depth
             )
             positive_literals.append(negated_lit)
         
@@ -120,7 +124,7 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
     """
     逻辑与
     """
-    if formula1.depth and formula2.depth == 0:
+    if formula1.depth == 0 and formula2.depth == 0:
         # Both "propositional". Simply do a obdd and.
         new_aednf = AEDNF(
             terms=[AEDNFTerm(
@@ -188,7 +192,8 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                         positive_literals.append(KnowledgeLiteral(
                             agent=agent,
                             formula=formulas[0],
-                            negated=False
+                            negated=False,
+                            depth=formulas[0].depth
                         ))
                     else:
                         # merge formulas with land
@@ -198,7 +203,8 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                         positive_literals.append(KnowledgeLiteral(
                             agent=agent,
                             formula=merged_formula,
-                            negated=False   
+                            negated=False,
+                            depth=merged_formula.depth
                         ))
                 # 对于negative literals 只需要简单地堆叠
                 negative_literals = term1.negative_literals + term2.negative_literals
@@ -214,7 +220,7 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
 
         return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=max(formula1.depth, formula2.depth))
     
-    return Exception("Invalid input")
+    raise Exception("Invalid input")
 
 def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
     """
@@ -237,8 +243,8 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         new_aecnf = AECNF(
             clauses=[AECNFClause(
                 objective_part=ObjectiveFormula(
-                    obdd_node_id=AND(formula1.aecnf.clauses[0].objective_part.obdd_node_id, formula2.aecnf.clauses[0].objective_part.obdd_node_id).id,
-                    description=f"({formula1.aecnf.clauses[0].objective_part.description} ∧ {formula2.aecnf.clauses[0].objective_part.description})"
+                    obdd_node_id=OR(formula1.aecnf.clauses[0].objective_part.obdd_node_id, formula2.aecnf.clauses[0].objective_part.obdd_node_id).id,
+                    description=f"({formula1.aecnf.clauses[0].objective_part.description} ∨ {formula2.aecnf.clauses[0].objective_part.description})"
                 ),
                 positive_literals=[],
                 negative_literals=[]
@@ -256,11 +262,14 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         
         for clause in formula2.aecnf.clauses:
             new_clauses.append(AECNFClause(
-                objective_part= OR(formula1.aednf.terms[0].objective_part.obdd_node_id, clause.objective_part.obdd_node_id),
+                objective_part=ObjectiveFormula(
+                    obdd_node_id=OR(formula1.aednf.terms[0].objective_part.obdd_node_id, clause.objective_part.obdd_node_id).id,
+                    description=f"({formula1.aednf.terms[0].objective_part.description} ∨ {clause.objective_part.description})"
+                ),
                 positive_literals=clause.positive_literals,
                 negative_literals=clause.negative_literals
             ))
-        new_aecnf = AEDNF(terms=new_clauses, depth=formula2.depth)
+        new_aecnf = AECNF(clauses=new_clauses, depth=formula2.depth)
         return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=formula2.depth)
     
     if formula1.depth > 0 and formula2.depth > 0:
@@ -269,8 +278,8 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         new_clauses = []
         for clause1 in formula1.aecnf.clauses:
             for clause2 in formula2.aecnf.clauses:
-                # 对每一对term1和term2,我们需要:
-                # 1. 合并它们的objective_part (用AND)
+                # 对每一对clause1和clause2,我们需要:
+                # 1. 合并它们的objective_part (用OR)
                 new_objective = ObjectiveFormula(
                     obdd_node_id=OR(clause1.objective_part.obdd_node_id, clause2.objective_part.obdd_node_id).id,
                     description=f"({clause1.objective_part.description} ∨ {clause2.objective_part.description})"
@@ -289,17 +298,19 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                         negative_literals.append(KnowledgeLiteral(
                             agent=agent,
                             formula=formulas[0],
-                            negated=False
+                            negated=False,
+                            depth=formulas[0].depth
                         ))
                     else:
-                        # merge formulas with land
+                        # merge formulas with lor
                         merged_formula = formulas[0]
                         for f in formulas[1:]:
                             merged_formula = lor(merged_formula, f)
                         negative_literals.append(KnowledgeLiteral(
                             agent=agent,
                             formula=merged_formula,
-                            negated=False   
+                            negated=False,
+                            depth=merged_formula.depth
                         ))
                         
                 positive_literals = clause1.positive_literals + clause2.positive_literals
@@ -312,29 +323,31 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                 new_clauses.append(new_clause)
             
         new_aecnf = AECNF(clauses=new_clauses, depth=max(formula1.depth, formula2.depth))
-
+        return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=max(formula1.depth, formula2.depth))
+    
 def know(formula: AEDNFAECNFPair, agent: str) -> AEDNFAECNFPair:
     """
     逻辑知道
     """
-    if formula.depth == 0:
-        new_literal = KnowledgeLiteral(
-            agent=agent,
-            formula=formula.aednf.terms[0].objective_part,
-            negated=False
-        )
-        new_clause  = AECNFClause(
-            objective_part=ObjectiveFormula(),
-            positive_literals=[new_literal],
-            negative_literals=[]
-        )
-        new_term = AEDNFTerm(
-            objective_part=ObjectiveFormula(),
-            positive_literals=[new_literal],
-            negative_literals=[]
-        )
-        new_aednf = AEDNF(terms=[new_term], depth=1)
-        new_aecnf = AECNF(clauses=[new_clause], depth=1)
-        return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=1)
-    
+    new_literal = KnowledgeLiteral(
+        agent=agent,
+        formula=formula,
+        negated=False,
+        depth=formula.depth + 1
+    )
+    new_clause  = AECNFClause(
+        objective_part=ObjectiveFormula(),
+        positive_literals=[new_literal],
+        negative_literals=[]
+    )
+    new_term = AEDNFTerm(
+        objective_part=ObjectiveFormula(),
+        positive_literals=[new_literal],
+        negative_literals=[]
+    )
+    new_aednf = AEDNF(terms=[new_term], depth=formula.depth + 1)
+    new_aecnf = AECNF(clauses=[new_clause], depth=formula.depth + 1)
+    return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=formula.depth + 1)
+
+
         

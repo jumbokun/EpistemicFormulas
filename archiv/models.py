@@ -43,7 +43,7 @@ class ObjectiveFormula(Formula):
 class KnowledgeLiteral(BaseModel):
     """认知文字：K_a(φ) 或 ¬K_a(φ)"""
     agent: Agent
-    formula: Formula
+    formula: 'AEDNFAECNFPair'
     negated: bool = False
     depth: int = Field(..., ge=0)
 

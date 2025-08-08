@@ -21,9 +21,6 @@ from .models import (
     create_objective_pair
 )
 
-# 构建器相关
-from .builders import Depth0Builder
-from .builders_depth1 import Depth1Builder
 
 __all__ = [
     # OBDD相关
@@ -35,6 +32,4 @@ __all__ = [
     'AEDNFTerm', 'AECNFClause', 'AEDNF', 'AECNF', 'AEDNFAECNFPair',
     'create_objective_pair',
     
-    # 构建器相关
-    'Depth0Builder', 'Depth1Builder',
 ]
