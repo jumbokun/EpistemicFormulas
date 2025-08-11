@@ -1,5 +1,30 @@
-from models import AEDNFAECNFPair, AEDNF, AECNF, AEDNFTerm, AECNFClause, KnowledgeLiteral, ObjectiveFormula
-from obdd import negate, AND, NOT, OR, IMPLIES, EQUIV, true_node, false_node, conjoin, disjoin, implies, equiv, reset_cache, Node
+from .models import AEDNFAECNFPair, AEDNF, AECNF, AEDNFTerm, AECNFClause, KnowledgeLiteral, ObjectiveFormula
+from .obdd import negate, AND, NOT, OR, implies, true_node, false_node, conjoin, disjoin, reset_cache, Node, branch_cache, nodeID_2_key
+
+def get_node_from_id(node_id: int) -> Node:
+    """从节点ID获取Node对象"""
+    if node_id == 0:  # false_node
+        return false_node
+    elif node_id == 1:  # true_node
+        return true_node
+    else:
+        # 尝试从 nodeID_2_key 获取
+        if node_id in nodeID_2_key:
+            return branch_cache[nodeID_2_key[node_id]]
+        
+        # 如果不在 nodeID_2_key 中，尝试从 Node._instances 获取
+        if node_id < len(Node._instances):
+            return Node._instances[node_id]
+        
+        # 如果都不行，尝试从 branch_cache 的值中查找
+        for node in branch_cache.values():
+            if node.id == node_id:
+                return node
+        
+        # 最后返回 false_node 作为默认值
+        print(f"警告: 节点ID {node_id} 无法找到，使用 false_node 作为默认值")
+        return false_node
+
 def lnot(formula: AEDNFAECNFPair) -> AEDNFAECNFPair:
     """
     逻辑非
@@ -129,7 +154,7 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         new_aednf = AEDNF(
             terms=[AEDNFTerm(
                 objective_part=ObjectiveFormula(
-                    obdd_node_id=AND(formula1.aednf.terms[0].objective_part.obdd_node_id, formula2.aednf.terms[0].objective_part.obdd_node_id).id,
+                    obdd_node_id=AND(get_node_from_id(formula1.aednf.terms[0].objective_part.obdd_node_id), get_node_from_id(formula2.aednf.terms[0].objective_part.obdd_node_id)).id,
                     description=f"({formula1.aednf.terms[0].objective_part.description} ∧ {formula2.aednf.terms[0].objective_part.description})"
                 ),
                 positive_literals=[],
@@ -140,7 +165,7 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         new_aecnf = AECNF(
             clauses=[AECNFClause(
                 objective_part=ObjectiveFormula(
-                    obdd_node_id=AND(formula1.aecnf.clauses[0].objective_part.obdd_node_id, formula2.aecnf.clauses[0].objective_part.obdd_node_id).id,
+                    obdd_node_id=AND(get_node_from_id(formula1.aecnf.clauses[0].objective_part.obdd_node_id), get_node_from_id(formula2.aecnf.clauses[0].objective_part.obdd_node_id)).id,
                     description=f"({formula1.aecnf.clauses[0].objective_part.description} ∧ {formula2.aecnf.clauses[0].objective_part.description})"
                 ),
                 positive_literals=[],
@@ -157,13 +182,16 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         new_terms = []
         for term in formula2.aednf.terms:
             new_terms.append(AEDNFTerm(
-                objective_part= AND(formula1.aednf.terms[0].objective_part.obdd_node_id, term.objective_part.obdd_node_id),
+                objective_part= ObjectiveFormula(
+                    obdd_node_id=AND(get_node_from_id(formula1.aednf.terms[0].objective_part.obdd_node_id), get_node_from_id(term.objective_part.obdd_node_id)).id,
+                    description=f"({formula1.aednf.terms[0].objective_part.description} ∧ {term.objective_part.description})"
+                ),
                 positive_literals=term.positive_literals,
                 negative_literals=term.negative_literals
             ))
         new_aednf = AEDNF(terms=new_terms, depth=formula2.depth)
         
-        new_aecnf = AECNF(formula1.aecnf.clauses + formula2.aecnf.clauses, depth=max(formula1.depth, formula2.depth))
+        new_aecnf = AECNF(clauses=formula1.aecnf.clauses + formula2.aecnf.clauses, depth=max(formula1.depth, formula2.depth))
         return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=max(formula1.depth, formula2.depth))
     
     if formula1.depth > 0 and formula2.depth > 0:
@@ -175,7 +203,7 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                 # 对每一对term1和term2,我们需要:
                 # 1. 合并它们的objective_part (用AND)
                 new_objective = ObjectiveFormula(
-                    obdd_node_id=AND(term1.objective_part.obdd_node_id, term2.objective_part.obdd_node_id).id,
+                    obdd_node_id=AND(get_node_from_id(term1.objective_part.obdd_node_id), get_node_from_id(term2.objective_part.obdd_node_id)).id,
                     description=f"({term1.objective_part.description} ∧ {term2.objective_part.description})"
                 )
                 
@@ -232,7 +260,7 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         new_aednf = AEDNF(
             terms=[AEDNFTerm(
                 objective_part=ObjectiveFormula(
-                    obdd_node_id=OR(formula1.aednf.terms[0].objective_part.obdd_node_id, formula2.aednf.terms[0].objective_part.obdd_node_id).id,
+                    obdd_node_id=OR(get_node_from_id(formula1.aednf.terms[0].objective_part.obdd_node_id), get_node_from_id(formula2.aednf.terms[0].objective_part.obdd_node_id)).id,
                     description=f"({formula1.aednf.terms[0].objective_part.description} ∨ {formula2.aednf.terms[0].objective_part.description})"
                 ),
                 positive_literals=[],
@@ -243,7 +271,7 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         new_aecnf = AECNF(
             clauses=[AECNFClause(
                 objective_part=ObjectiveFormula(
-                    obdd_node_id=OR(formula1.aecnf.clauses[0].objective_part.obdd_node_id, formula2.aecnf.clauses[0].objective_part.obdd_node_id).id,
+                    obdd_node_id=OR(get_node_from_id(formula1.aecnf.clauses[0].objective_part.obdd_node_id), get_node_from_id(formula2.aecnf.clauses[0].objective_part.obdd_node_id)).id,
                     description=f"({formula1.aecnf.clauses[0].objective_part.description} ∨ {formula2.aecnf.clauses[0].objective_part.description})"
                 ),
                 positive_literals=[],
@@ -263,7 +291,7 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         for clause in formula2.aecnf.clauses:
             new_clauses.append(AECNFClause(
                 objective_part=ObjectiveFormula(
-                    obdd_node_id=OR(formula1.aednf.terms[0].objective_part.obdd_node_id, clause.objective_part.obdd_node_id).id,
+                    obdd_node_id=OR(get_node_from_id(formula1.aednf.terms[0].objective_part.obdd_node_id), get_node_from_id(clause.objective_part.obdd_node_id)).id,
                     description=f"({formula1.aednf.terms[0].objective_part.description} ∨ {clause.objective_part.description})"
                 ),
                 positive_literals=clause.positive_literals,
@@ -281,7 +309,7 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                 # 对每一对clause1和clause2,我们需要:
                 # 1. 合并它们的objective_part (用OR)
                 new_objective = ObjectiveFormula(
-                    obdd_node_id=OR(clause1.objective_part.obdd_node_id, clause2.objective_part.obdd_node_id).id,
+                    obdd_node_id=OR(get_node_from_id(clause1.objective_part.obdd_node_id), get_node_from_id(clause2.objective_part.obdd_node_id)).id,
                     description=f"({clause1.objective_part.description} ∨ {clause2.objective_part.description})"
                 )
                 
@@ -328,6 +356,7 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
 def know(formula: AEDNFAECNFPair, agent: str) -> AEDNFAECNFPair:
     """
     逻辑知道
+    K_agent(formula) 表示 agent 知道 formula
     """
     new_literal = KnowledgeLiteral(
         agent=agent,
@@ -335,16 +364,21 @@ def know(formula: AEDNFAECNFPair, agent: str) -> AEDNFAECNFPair:
         negated=False,
         depth=formula.depth + 1
     )
-    new_clause  = AECNFClause(
-        objective_part=ObjectiveFormula(),
-        positive_literals=[new_literal],
-        negative_literals=[]
-    )
+    
+    # 对于AEDNF，K_agent(formula) 表示为 (⊤ ∧ K_agent(formula))
     new_term = AEDNFTerm(
-        objective_part=ObjectiveFormula(),
+        objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤"),
         positive_literals=[new_literal],
         negative_literals=[]
     )
+    
+    # 对于AECNF，K_agent(formula) 表示为 (⊥ ∨ K_agent(formula))
+    new_clause = AECNFClause(
+        objective_part=ObjectiveFormula(obdd_node_id=false_node.id, description="⊥"),
+        positive_literals=[new_literal],
+        negative_literals=[]
+    )
+    
     new_aednf = AEDNF(terms=[new_term], depth=formula.depth + 1)
     new_aecnf = AECNF(clauses=[new_clause], depth=formula.depth + 1)
     return AEDNFAECNFPair(aednf=new_aednf, aecnf=new_aecnf, depth=formula.depth + 1)

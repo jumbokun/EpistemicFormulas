@@ -169,7 +169,7 @@ def create_objective_pair(content: str) -> AEDNFAECNFPair:
     Args:
         content: 公式内容，如 "v1", "⊤", "⊥" 等
     """
-    from obdd import V, true_node, false_node, symbol_2_number
+    from .obdd import V, true_node, false_node, symbol_2_number
     
     # 根据内容创建OBDD节点
     if content == "⊤":
@@ -190,24 +190,24 @@ def create_objective_pair(content: str) -> AEDNFAECNFPair:
     aednf = AEDNF(terms=[term], depth=0)
     aecnf = AECNF(clauses=[clause], depth=0)
     
-    return AEDNFAECNFPair(aednf=aednf, aecnf=aecnf)
+    return AEDNFAECNFPair(aednf=aednf, aecnf=aecnf, depth=0)
 
-def validate_alternating_constraint(formula: Formula, agent: Agent) -> bool:
-    """验证交替约束"""
-    return formula.is_objective_for_agent(agent)
+# def validate_alternating_constraint(formula: Formula, agent: Agent) -> bool:
+#     """验证交替约束"""
+#     return formula.is_objective_for_agent(agent)
 
-def validate_aednf_structure(aednf: AEDNF) -> bool:
-    """验证AEDNF结构"""
-    if aednf.depth == 0:
-        return len(aednf.terms) == 1 and len(aednf.terms[0].positive_literals) == 0 and len(aednf.terms[0].negative_literals) == 0
-    else:
-        # 深度1+的验证逻辑
-        return True
+# def validate_aednf_structure(aednf: AEDNF) -> bool:
+#     """验证AEDNF结构"""
+#     if aednf.depth == 0:
+#         return len(aednf.terms) == 1 and len(aednf.terms[0].positive_literals) == 0 and len(aednf.terms[0].negative_literals) == 0
+#     else:
+#         # 深度1+的验证逻辑
+#         return True
 
-def validate_aecnf_structure(aecnf: AECNF) -> bool:
-    """验证AECNF结构"""
-    if aecnf.depth == 0:
-        return len(aecnf.clauses) == 1 and len(aecnf.clauses[0].positive_literals) == 0 and len(aecnf.clauses[0].negative_literals) == 0
-    else:
-        # 深度1+的验证逻辑
-        return True
+# def validate_aecnf_structure(aecnf: AECNF) -> bool:
+#     """验证AECNF结构"""
+#     if aecnf.depth == 0:
+#         return len(aecnf.clauses) == 1 and len(aecnf.clauses[0].positive_literals) == 0 and len(aecnf.clauses[0].negative_literals) == 0
+#     else:
+#         # 深度1+的验证逻辑
+#         return True

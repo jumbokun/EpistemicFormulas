@@ -1,0 +1,5084 @@
+{
+  "parameters": {
+    "agent_count": 3,
+    "variable_count": 5,
+    "max_depth": 2,
+    "target_complexity": 8
+  },
+  "agents": [
+    "a1",
+    "a2",
+    "a3"
+  ],
+  "variables": [
+    "v1",
+    "v2",
+    "v3",
+    "v4",
+    "v5"
+  ],
+  "generation_steps": [
+    {
+      "step": 1,
+      "type": "选择操作",
+      "description": "选择否定操作 (复杂度: 8)",
+      "complexity": 8,
+      "formula": null,
+      "sub_formulas": null
+    },
+    {
+      "step": 2,
+      "type": "选择操作",
+      "description": "选择知识算子操作 (复杂度: 7)",
+      "complexity": 7,
+      "formula": null,
+      "sub_formulas": null
+    },
+    {
+      "step": 3,
+      "type": "选择操作",
+      "description": "选择析取操作 (复杂度: 6)",
+      "complexity": 6,
+      "formula": null,
+      "sub_formulas": null
+    },
+    {
+      "step": 4,
+      "type": "选择操作",
+      "description": "选择析取操作 (复杂度: 4)",
+      "complexity": 4,
+      "formula": null,
+      "sub_formulas": null
+    },
+    {
+      "step": 5,
+      "type": "选择操作",
+      "description": "选择知识算子操作 (复杂度: 2)",
+      "complexity": 2,
+      "formula": null,
+      "sub_formulas": null
+    },
+    {
+      "step": 6,
+      "type": "原子命题",
+      "description": "创建原子命题 v1",
+      "complexity": 1,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 2,
+                "description": "v1",
+                "depth": 0
+              },
+              "positive_literals": [],
+              "negative_literals": []
+            }
+          ],
+          "depth": 0
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 2,
+                "description": "v1",
+                "depth": 0
+              },
+              "positive_literals": [],
+              "negative_literals": []
+            }
+          ],
+          "depth": 0
+        },
+        "depth": 0
+      },
+      "sub_formulas": null
+    },
+    {
+      "step": 7,
+      "type": "知识算子",
+      "description": "对公式应用知识算子 K_a3",
+      "complexity": 2,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "⊤",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 1
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 0,
+                "description": "⊥",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 1
+        },
+        "depth": 1
+      },
+      "sub_formulas": [
+        {
+          "aednf": {
+            "terms": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 2,
+                  "description": "v1",
+                  "depth": 0
+                },
+                "positive_literals": [],
+                "negative_literals": []
+              }
+            ],
+            "depth": 0
+          },
+          "aecnf": {
+            "clauses": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 2,
+                  "description": "v1",
+                  "depth": 0
+                },
+                "positive_literals": [],
+                "negative_literals": []
+              }
+            ],
+            "depth": 0
+          },
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "type": "选择操作",
+      "description": "选择知识算子操作 (复杂度: 2)",
+      "complexity": 2,
+      "formula": null,
+      "sub_formulas": null
+    },
+    {
+      "step": 9,
+      "type": "原子命题",
+      "description": "创建原子命题 v3",
+      "complexity": 1,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 3,
+                "description": "v3",
+                "depth": 0
+              },
+              "positive_literals": [],
+              "negative_literals": []
+            }
+          ],
+          "depth": 0
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 3,
+                "description": "v3",
+                "depth": 0
+              },
+              "positive_literals": [],
+              "negative_literals": []
+            }
+          ],
+          "depth": 0
+        },
+        "depth": 0
+      },
+      "sub_formulas": null
+    },
+    {
+      "step": 10,
+      "type": "知识算子",
+      "description": "对公式应用知识算子 K_a2",
+      "complexity": 2,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "⊤",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 1
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 0,
+                "description": "⊥",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 1
+        },
+        "depth": 1
+      },
+      "sub_formulas": [
+        {
+          "aednf": {
+            "terms": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 3,
+                  "description": "v3",
+                  "depth": 0
+                },
+                "positive_literals": [],
+                "negative_literals": []
+              }
+            ],
+            "depth": 0
+          },
+          "aecnf": {
+            "clauses": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 3,
+                  "description": "v3",
+                  "depth": 0
+                },
+                "positive_literals": [],
+                "negative_literals": []
+              }
+            ],
+            "depth": 0
+          },
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "step": 11,
+      "type": "析取操作",
+      "description": "对两个公式进行析取",
+      "complexity": 4,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "⊤",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            },
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "⊤",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 1
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 0,
+                "description": "(⊥ ∨ ⊥)",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                },
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 0
+                },
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 0
+                }
+              ]
+            }
+          ],
+          "depth": 1
+        },
+        "depth": 1
+      },
+      "sub_formulas": [
+        {
+          "aednf": {
+            "terms": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 1,
+                  "description": "⊤",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 1
+          },
+          "aecnf": {
+            "clauses": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 0,
+                  "description": "⊥",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 1
+          },
+          "depth": 1
+        },
+        {
+          "aednf": {
+            "terms": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 1,
+                  "description": "⊤",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 1
+          },
+          "aecnf": {
+            "clauses": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 0,
+                  "description": "⊥",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 1
+          },
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "step": 12,
+      "type": "选择操作",
+      "description": "选择知识算子操作 (复杂度: 2)",
+      "complexity": 2,
+      "formula": null,
+      "sub_formulas": null
+    },
+    {
+      "step": 13,
+      "type": "原子命题",
+      "description": "创建原子命题 v1",
+      "complexity": 1,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 2,
+                "description": "v1",
+                "depth": 0
+              },
+              "positive_literals": [],
+              "negative_literals": []
+            }
+          ],
+          "depth": 0
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 2,
+                "description": "v1",
+                "depth": 0
+              },
+              "positive_literals": [],
+              "negative_literals": []
+            }
+          ],
+          "depth": 0
+        },
+        "depth": 0
+      },
+      "sub_formulas": null
+    },
+    {
+      "step": 14,
+      "type": "知识算子",
+      "description": "对公式应用知识算子 K_a3",
+      "complexity": 2,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "⊤",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 1
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 0,
+                "description": "⊥",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 1
+        },
+        "depth": 1
+      },
+      "sub_formulas": [
+        {
+          "aednf": {
+            "terms": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 2,
+                  "description": "v1",
+                  "depth": 0
+                },
+                "positive_literals": [],
+                "negative_literals": []
+              }
+            ],
+            "depth": 0
+          },
+          "aecnf": {
+            "clauses": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 2,
+                  "description": "v1",
+                  "depth": 0
+                },
+                "positive_literals": [],
+                "negative_literals": []
+              }
+            ],
+            "depth": 0
+          },
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "step": 15,
+      "type": "析取操作",
+      "description": "对两个公式进行析取",
+      "complexity": 6,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "⊤",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            },
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "⊤",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            },
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "⊤",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 1
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 0,
+                "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                },
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                },
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "v1",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 1
+                }
+              ],
+              "negative_literals": [
+                {
+                  "agent": "a3",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "(v1 ∨ v1)",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 2,
+                            "description": "(v1 ∨ v1)",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 0
+                },
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 3,
+                            "description": "v3",
+                            "depth": 0
+                          },
+                          "positive_literals": [],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 0
+                    },
+                    "depth": 0
+                  },
+                  "negated": false,
+                  "depth": 0
+                }
+              ]
+            }
+          ],
+          "depth": 1
+        },
+        "depth": 1
+      },
+      "sub_formulas": [
+        {
+          "aednf": {
+            "terms": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 1,
+                  "description": "⊤",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              },
+              {
+                "objective_part": {
+                  "obdd_node_id": 1,
+                  "description": "⊤",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 1
+          },
+          "aecnf": {
+            "clauses": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 0,
+                  "description": "(⊥ ∨ ⊥)",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  },
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 0
+                  },
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 0
+                  }
+                ]
+              }
+            ],
+            "depth": 1
+          },
+          "depth": 1
+        },
+        {
+          "aednf": {
+            "terms": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 1,
+                  "description": "⊤",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 1
+          },
+          "aecnf": {
+            "clauses": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 0,
+                  "description": "⊥",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 1
+          },
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "step": 16,
+      "type": "知识算子",
+      "description": "对公式应用知识算子 K_a2",
+      "complexity": 7,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "⊤",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        },
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        },
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 1
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 0,
+                            "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            },
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            },
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "(v1 ∨ v1)",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "(v1 ∨ v1)",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 0
+                            },
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 0
+                            }
+                          ]
+                        }
+                      ],
+                      "depth": 1
+                    },
+                    "depth": 1
+                  },
+                  "negated": false,
+                  "depth": 2
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 2
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 0,
+                "description": "⊥",
+                "depth": 0
+              },
+              "positive_literals": [
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        },
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        },
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 1
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 0,
+                            "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            },
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            },
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "(v1 ∨ v1)",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "(v1 ∨ v1)",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 0
+                            },
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 0
+                            }
+                          ]
+                        }
+                      ],
+                      "depth": 1
+                    },
+                    "depth": 1
+                  },
+                  "negated": false,
+                  "depth": 2
+                }
+              ],
+              "negative_literals": []
+            }
+          ],
+          "depth": 2
+        },
+        "depth": 2
+      },
+      "sub_formulas": [
+        {
+          "aednf": {
+            "terms": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 1,
+                  "description": "⊤",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              },
+              {
+                "objective_part": {
+                  "obdd_node_id": 1,
+                  "description": "⊤",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              },
+              {
+                "objective_part": {
+                  "obdd_node_id": 1,
+                  "description": "⊤",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 1
+          },
+          "aecnf": {
+            "clauses": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 0,
+                  "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  },
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  },
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "v1",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 1
+                  }
+                ],
+                "negative_literals": [
+                  {
+                    "agent": "a3",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "(v1 ∨ v1)",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 2,
+                              "description": "(v1 ∨ v1)",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 0
+                  },
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 3,
+                              "description": "v3",
+                              "depth": 0
+                            },
+                            "positive_literals": [],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 0
+                      },
+                      "depth": 0
+                    },
+                    "negated": false,
+                    "depth": 0
+                  }
+                ]
+              }
+            ],
+            "depth": 1
+          },
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "step": 17,
+      "type": "否定操作",
+      "description": "对公式进行否定",
+      "complexity": 8,
+      "formula": {
+        "aednf": {
+          "terms": [
+            {
+              "objective_part": {
+                "obdd_node_id": 1,
+                "description": "¬(⊥)",
+                "depth": 0
+              },
+              "positive_literals": [],
+              "negative_literals": [
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        },
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        },
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 1
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 0,
+                            "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            },
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            },
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "(v1 ∨ v1)",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "(v1 ∨ v1)",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 0
+                            },
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 0
+                            }
+                          ]
+                        }
+                      ],
+                      "depth": 1
+                    },
+                    "depth": 1
+                  },
+                  "negated": true,
+                  "depth": 2
+                }
+              ]
+            }
+          ],
+          "depth": 2
+        },
+        "aecnf": {
+          "clauses": [
+            {
+              "objective_part": {
+                "obdd_node_id": 0,
+                "description": "¬(⊤)",
+                "depth": 0
+              },
+              "positive_literals": [],
+              "negative_literals": [
+                {
+                  "agent": "a2",
+                  "formula": {
+                    "aednf": {
+                      "terms": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        },
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        },
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 1,
+                            "description": "⊤",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": []
+                        }
+                      ],
+                      "depth": 1
+                    },
+                    "aecnf": {
+                      "clauses": [
+                        {
+                          "objective_part": {
+                            "obdd_node_id": 0,
+                            "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                            "depth": 0
+                          },
+                          "positive_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            },
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            },
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "v1",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 1
+                            }
+                          ],
+                          "negative_literals": [
+                            {
+                              "agent": "a3",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "(v1 ∨ v1)",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 2,
+                                        "description": "(v1 ∨ v1)",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 0
+                            },
+                            {
+                              "agent": "a2",
+                              "formula": {
+                                "aednf": {
+                                  "terms": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "aecnf": {
+                                  "clauses": [
+                                    {
+                                      "objective_part": {
+                                        "obdd_node_id": 3,
+                                        "description": "v3",
+                                        "depth": 0
+                                      },
+                                      "positive_literals": [],
+                                      "negative_literals": []
+                                    }
+                                  ],
+                                  "depth": 0
+                                },
+                                "depth": 0
+                              },
+                              "negated": false,
+                              "depth": 0
+                            }
+                          ]
+                        }
+                      ],
+                      "depth": 1
+                    },
+                    "depth": 1
+                  },
+                  "negated": true,
+                  "depth": 2
+                }
+              ]
+            }
+          ],
+          "depth": 2
+        },
+        "depth": 2
+      },
+      "sub_formulas": [
+        {
+          "aednf": {
+            "terms": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 1,
+                  "description": "⊤",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 1,
+                              "description": "⊤",
+                              "depth": 0
+                            },
+                            "positive_literals": [
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              }
+                            ],
+                            "negative_literals": []
+                          },
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 1,
+                              "description": "⊤",
+                              "depth": 0
+                            },
+                            "positive_literals": [
+                              {
+                                "agent": "a2",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              }
+                            ],
+                            "negative_literals": []
+                          },
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 1,
+                              "description": "⊤",
+                              "depth": 0
+                            },
+                            "positive_literals": [
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              }
+                            ],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 1
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 0,
+                              "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                              "depth": 0
+                            },
+                            "positive_literals": [
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              },
+                              {
+                                "agent": "a2",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              },
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              }
+                            ],
+                            "negative_literals": [
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "(v1 ∨ v1)",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "(v1 ∨ v1)",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 0
+                              },
+                              {
+                                "agent": "a2",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 0
+                              }
+                            ]
+                          }
+                        ],
+                        "depth": 1
+                      },
+                      "depth": 1
+                    },
+                    "negated": false,
+                    "depth": 2
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 2
+          },
+          "aecnf": {
+            "clauses": [
+              {
+                "objective_part": {
+                  "obdd_node_id": 0,
+                  "description": "⊥",
+                  "depth": 0
+                },
+                "positive_literals": [
+                  {
+                    "agent": "a2",
+                    "formula": {
+                      "aednf": {
+                        "terms": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 1,
+                              "description": "⊤",
+                              "depth": 0
+                            },
+                            "positive_literals": [
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              }
+                            ],
+                            "negative_literals": []
+                          },
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 1,
+                              "description": "⊤",
+                              "depth": 0
+                            },
+                            "positive_literals": [
+                              {
+                                "agent": "a2",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              }
+                            ],
+                            "negative_literals": []
+                          },
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 1,
+                              "description": "⊤",
+                              "depth": 0
+                            },
+                            "positive_literals": [
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              }
+                            ],
+                            "negative_literals": []
+                          }
+                        ],
+                        "depth": 1
+                      },
+                      "aecnf": {
+                        "clauses": [
+                          {
+                            "objective_part": {
+                              "obdd_node_id": 0,
+                              "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                              "depth": 0
+                            },
+                            "positive_literals": [
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              },
+                              {
+                                "agent": "a2",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              },
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "v1",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 1
+                              }
+                            ],
+                            "negative_literals": [
+                              {
+                                "agent": "a3",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "(v1 ∨ v1)",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 2,
+                                          "description": "(v1 ∨ v1)",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 0
+                              },
+                              {
+                                "agent": "a2",
+                                "formula": {
+                                  "aednf": {
+                                    "terms": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "aecnf": {
+                                    "clauses": [
+                                      {
+                                        "objective_part": {
+                                          "obdd_node_id": 3,
+                                          "description": "v3",
+                                          "depth": 0
+                                        },
+                                        "positive_literals": [],
+                                        "negative_literals": []
+                                      }
+                                    ],
+                                    "depth": 0
+                                  },
+                                  "depth": 0
+                                },
+                                "negated": false,
+                                "depth": 0
+                              }
+                            ]
+                          }
+                        ],
+                        "depth": 1
+                      },
+                      "depth": 1
+                    },
+                    "negated": false,
+                    "depth": 2
+                  }
+                ],
+                "negative_literals": []
+              }
+            ],
+            "depth": 2
+          },
+          "depth": 2
+        }
+      ]
+    }
+  ],
+  "final_formula": {
+    "aednf": {
+      "terms": [
+        {
+          "objective_part": {
+            "obdd_node_id": 1,
+            "description": "¬(⊥)",
+            "depth": 0
+          },
+          "positive_literals": [],
+          "negative_literals": [
+            {
+              "agent": "a2",
+              "formula": {
+                "aednf": {
+                  "terms": [
+                    {
+                      "objective_part": {
+                        "obdd_node_id": 1,
+                        "description": "⊤",
+                        "depth": 0
+                      },
+                      "positive_literals": [
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        }
+                      ],
+                      "negative_literals": []
+                    },
+                    {
+                      "objective_part": {
+                        "obdd_node_id": 1,
+                        "description": "⊤",
+                        "depth": 0
+                      },
+                      "positive_literals": [
+                        {
+                          "agent": "a2",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        }
+                      ],
+                      "negative_literals": []
+                    },
+                    {
+                      "objective_part": {
+                        "obdd_node_id": 1,
+                        "description": "⊤",
+                        "depth": 0
+                      },
+                      "positive_literals": [
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        }
+                      ],
+                      "negative_literals": []
+                    }
+                  ],
+                  "depth": 1
+                },
+                "aecnf": {
+                  "clauses": [
+                    {
+                      "objective_part": {
+                        "obdd_node_id": 0,
+                        "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                        "depth": 0
+                      },
+                      "positive_literals": [
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        },
+                        {
+                          "agent": "a2",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        },
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        }
+                      ],
+                      "negative_literals": [
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "(v1 ∨ v1)",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "(v1 ∨ v1)",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 0
+                        },
+                        {
+                          "agent": "a2",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 0
+                        }
+                      ]
+                    }
+                  ],
+                  "depth": 1
+                },
+                "depth": 1
+              },
+              "negated": true,
+              "depth": 2
+            }
+          ]
+        }
+      ],
+      "depth": 2
+    },
+    "aecnf": {
+      "clauses": [
+        {
+          "objective_part": {
+            "obdd_node_id": 0,
+            "description": "¬(⊤)",
+            "depth": 0
+          },
+          "positive_literals": [],
+          "negative_literals": [
+            {
+              "agent": "a2",
+              "formula": {
+                "aednf": {
+                  "terms": [
+                    {
+                      "objective_part": {
+                        "obdd_node_id": 1,
+                        "description": "⊤",
+                        "depth": 0
+                      },
+                      "positive_literals": [
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        }
+                      ],
+                      "negative_literals": []
+                    },
+                    {
+                      "objective_part": {
+                        "obdd_node_id": 1,
+                        "description": "⊤",
+                        "depth": 0
+                      },
+                      "positive_literals": [
+                        {
+                          "agent": "a2",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        }
+                      ],
+                      "negative_literals": []
+                    },
+                    {
+                      "objective_part": {
+                        "obdd_node_id": 1,
+                        "description": "⊤",
+                        "depth": 0
+                      },
+                      "positive_literals": [
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        }
+                      ],
+                      "negative_literals": []
+                    }
+                  ],
+                  "depth": 1
+                },
+                "aecnf": {
+                  "clauses": [
+                    {
+                      "objective_part": {
+                        "obdd_node_id": 0,
+                        "description": "((⊥ ∨ ⊥) ∨ ⊥)",
+                        "depth": 0
+                      },
+                      "positive_literals": [
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        },
+                        {
+                          "agent": "a2",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        },
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "v1",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 1
+                        }
+                      ],
+                      "negative_literals": [
+                        {
+                          "agent": "a3",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "(v1 ∨ v1)",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 2,
+                                    "description": "(v1 ∨ v1)",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 0
+                        },
+                        {
+                          "agent": "a2",
+                          "formula": {
+                            "aednf": {
+                              "terms": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "aecnf": {
+                              "clauses": [
+                                {
+                                  "objective_part": {
+                                    "obdd_node_id": 3,
+                                    "description": "v3",
+                                    "depth": 0
+                                  },
+                                  "positive_literals": [],
+                                  "negative_literals": []
+                                }
+                              ],
+                              "depth": 0
+                            },
+                            "depth": 0
+                          },
+                          "negated": false,
+                          "depth": 0
+                        }
+                      ]
+                    }
+                  ],
+                  "depth": 1
+                },
+                "depth": 1
+              },
+              "negated": true,
+              "depth": 2
+            }
+          ]
+        }
+      ],
+      "depth": 2
+    },
+    "depth": 2
+  },
+  "total_steps": 17
+}
