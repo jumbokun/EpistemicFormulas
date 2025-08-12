@@ -221,10 +221,10 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                             agent=agent,
                             formula=formulas[0],
                             negated=False,
-                            depth=formulas[0].depth
+                            depth=formulas[0].depth + 1
                         ))
                     else:
-                        # merge formulas with land
+                        # merge formulas with land; depth = merged depth + 1
                         merged_formula = formulas[0]
                         for f in formulas[1:]:
                             merged_formula = land(merged_formula, f)
@@ -232,7 +232,7 @@ def land(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                             agent=agent,
                             formula=merged_formula,
                             negated=False,
-                            depth=merged_formula.depth
+                            depth=merged_formula.depth + 1
                         ))
                 # 对于negative literals 只需要简单地堆叠
                 negative_literals = term1.negative_literals + term2.negative_literals
@@ -313,35 +313,37 @@ def lor(formula1: AEDNFAECNFPair, formula2: AEDNFAECNFPair) -> AEDNFAECNFPair:
                     description=f"({clause1.objective_part.description} ∨ {clause2.objective_part.description})"
                 )
                 
-                negative_literals = []
+                # 合并负知识文字（来自两个子句的 negative_literals）
                 agent_to_formulas = {}
-                for lit in clause1.positive_literals + clause2.positive_literals:
+                for lit in clause1.negative_literals + clause2.negative_literals:
                     if lit.agent not in agent_to_formulas:
                         agent_to_formulas[lit.agent] = []
                     agent_to_formulas[lit.agent].append(lit.formula)
                 
-                # 对每个agent,合并其所有的negative formulas
+                # 对每个 agent，合并其所有的负知识里的公式（用 OR），并设置正确的深度与否定标记
+                merged_negative_literals = []
                 for agent, formulas in agent_to_formulas.items():
                     if len(formulas) == 1:
-                        negative_literals.append(KnowledgeLiteral(
+                        merged_negative_literals.append(KnowledgeLiteral(
                             agent=agent,
                             formula=formulas[0],
-                            negated=False,
-                            depth=formulas[0].depth
+                            negated=True,
+                            depth=formulas[0].depth + 1
                         ))
                     else:
-                        # merge formulas with lor
                         merged_formula = formulas[0]
                         for f in formulas[1:]:
                             merged_formula = lor(merged_formula, f)
-                        negative_literals.append(KnowledgeLiteral(
+                        merged_negative_literals.append(KnowledgeLiteral(
                             agent=agent,
                             formula=merged_formula,
-                            negated=False,
-                            depth=merged_formula.depth
+                            negated=True,
+                            depth=merged_formula.depth + 1
                         ))
-                        
+
+                # 正知识直接拼接
                 positive_literals = clause1.positive_literals + clause2.positive_literals
+                negative_literals = merged_negative_literals
                 
                 new_clause = AECNFClause(
                     objective_part=new_objective,

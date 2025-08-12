@@ -10,7 +10,11 @@ class StepByStepFormulaGenerator:
                  agent_count: int = 3, 
                  variable_count: int = 5, 
                  max_depth: int = 3,
-                 target_complexity: int = 10):
+                 target_complexity: int = 10,
+                 weight_negation: float = 0.12,
+                 weight_conjunction: float = 0.44,
+                 weight_disjunction: float = 0.34,
+                 weight_knowledge: float = 0.10):
         """
         初始化逐步公式生成器
         
@@ -24,6 +28,10 @@ class StepByStepFormulaGenerator:
         self.variable_count = variable_count
         self.max_depth = max_depth
         self.target_complexity = target_complexity
+        self.weight_negation = weight_negation
+        self.weight_conjunction = weight_conjunction
+        self.weight_disjunction = weight_disjunction
+        self.weight_knowledge = weight_knowledge
         
         # 生成代理和变量名称
         self.agents = [f"a{i+1}" for i in range(agent_count)]
@@ -119,17 +127,36 @@ class StepByStepFormulaGenerator:
             variable = self.variables[var_dice]
             return self.create_atomic_formula(variable)
         
-        # 选择连接词
-        if complexity >= 3:
-            if deg_nesting == 0:
-                con_dice = random.randint(0, 2)  # 0: negation, 1: conjunction, 2: disjunction
-            else:
-                con_dice = random.randint(0, 3)  # 0: negation, 1: conjunction, 2: disjunction, 3: K modality
-        else:
-            if deg_nesting == 0:
-                con_dice = 0  # 只能选择否定
-            else:
-                con_dice = random.choice([0, 3])  # 否定或知识算子
+        # 选择连接词（带权重，降低否定概率）
+        def choose_op(complexity: int, deg_nesting: int) -> int:
+            if complexity < 3:
+                if deg_nesting == 0:
+                    return 0
+                options = [0, 3]
+                weights = [self.weight_negation, self.weight_knowledge if self.weight_knowledge > 0 else 0.5]
+                total = sum(weights)
+                r = random.random() * total
+                acc = 0.0
+                for opt, w in zip(options, weights):
+                    acc += w
+                    if r <= acc:
+                        return opt
+                return options[-1]
+            options = [0, 1, 2]
+            weights = [self.weight_negation, self.weight_conjunction, self.weight_disjunction]
+            if deg_nesting > 0:
+                options.append(3)
+                weights.append(self.weight_knowledge)
+            total = sum(weights)
+            r = random.random() * total
+            acc = 0.0
+            for opt, w in zip(options, weights):
+                acc += w
+                if r <= acc:
+                    return opt
+            return options[-1]
+
+        con_dice = choose_op(complexity, deg_nesting)
         
         if con_dice == 0:
             # 否定

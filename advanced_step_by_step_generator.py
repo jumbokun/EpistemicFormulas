@@ -7,11 +7,15 @@ import json
 
 class AdvancedStepByStepFormulaGenerator:
     def __init__(self, 
-                 agent_count: int = 3, 
-                 variable_count: int = 5, 
-                 max_depth: int = 3,
-                 target_complexity: int = 15,
-                 show_detailed_fol: bool = True):
+                  agent_count: int = 3, 
+                  variable_count: int = 5, 
+                  max_depth: int = 3,
+                  target_complexity: int = 15,
+                  show_detailed_fol: bool = True,
+                  weight_negation: float = 0.12,
+                  weight_conjunction: float = 0.44,
+                  weight_disjunction: float = 0.34,
+                  weight_knowledge: float = 0.10):
         """
         初始化高级逐步公式生成器
         
@@ -27,6 +31,11 @@ class AdvancedStepByStepFormulaGenerator:
         self.max_depth = max_depth
         self.target_complexity = target_complexity
         self.show_detailed_fol = show_detailed_fol
+         # 操作权重（用于降低否定频率）
+        self.weight_negation = weight_negation
+        self.weight_conjunction = weight_conjunction
+        self.weight_disjunction = weight_disjunction
+        self.weight_knowledge = weight_knowledge
         
         # 生成代理和变量名称
         self.agents = [f"a{i+1}" for i in range(agent_count)]
@@ -39,6 +48,49 @@ class AdvancedStepByStepFormulaGenerator:
         self.generation_steps = []
         self.step_counter = 0
         self.formula_counter = 0  # 用于生成φ_1, φ_2等占位符
+ 
+    def _choose_operator(self, complexity: int, deg_nesting: int) -> int:
+         """
+         选择操作：0=否定, 1=合取, 2=析取, 3=知识。
+         使用带权抽样以降低否定概率；当 deg_nesting==0 时禁用知识算子；
+         当 complexity<3 时避免选择需要二元拆分的操作（保持与原逻辑一致）。
+         """
+         # 小复杂度时，遵循原约束
+         if complexity < 3:
+             if deg_nesting == 0:
+                 return 0  # 只能选择否定
+             # 在可用时，倾向选择知识而不是否定
+             options = [0, 3]
+             weights = [self.weight_negation, self.weight_knowledge if self.weight_knowledge > 0 else 0.5]
+             total = sum(weights)
+             if total <= 0:
+                 return 3
+             r = random.random() * total
+             acc = 0.0
+             for opt, w in zip(options, weights):
+                 acc += w
+                 if r <= acc:
+                     return opt
+             return options[-1]
+ 
+         # complexity >= 3: 可用二元操作
+         options = [0, 1, 2]
+         weights = [self.weight_negation, self.weight_conjunction, self.weight_disjunction]
+         if deg_nesting > 0:
+             options.append(3)
+             weights.append(self.weight_knowledge)
+         total = sum(weights)
+         # 归一化并抽样
+         if total <= 0:
+             # 回退到均匀随机
+             return random.choice(options)
+         r = random.random() * total
+         acc = 0.0
+         for opt, w in zip(options, weights):
+             acc += w
+             if r <= acc:
+                 return opt
+         return options[-1]
     
     def get_nested_formula_description(self, formula_depth: int, agent: str) -> str:
         """根据公式深度生成嵌套公式的描述"""
@@ -182,17 +234,8 @@ class AdvancedStepByStepFormulaGenerator:
             variable = self.variables[var_dice]
             return self.create_atomic_formula(variable)
         
-        # 选择连接词
-        if complexity >= 3:
-            if deg_nesting == 0:
-                con_dice = random.randint(0, 2)
-            else:
-                con_dice = random.randint(0, 3)
-        else:
-            if deg_nesting == 0:
-                con_dice = 0
-            else:
-                con_dice = random.choice([0, 3])
+         # 选择连接词（带权重）
+        con_dice = self._choose_operator(complexity, deg_nesting)
         
         if con_dice == 0:
             # 否定
@@ -286,8 +329,8 @@ def main():
     generator = AdvancedStepByStepFormulaGenerator(
         agent_count=3,
         variable_count=5,
-        max_depth=2,
-        target_complexity=12,
+        max_depth=4,
+        target_complexity=50,
         show_detailed_fol=True
     )
     
