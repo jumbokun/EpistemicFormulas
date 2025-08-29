@@ -421,8 +421,8 @@ def sat_k_gamma_delta(gammas: List[AEDNFAECNFPair], deltas: List[AEDNFAECNFPair]
 
 def sat_aednf_term(term: AEDNFTerm) -> bool:
     """
-    AEDNF 的一项可满足：
-      sat(objective) 且 对每个代理 a：sat_K(Γ_a, Δ_a)
+    AEDNF 的一项term（内部是合取式）可满足等价于
+    sat(objective) 且 对每个代理 a：sat_K(Γ_a, Δ_a)
     其中 Γ_a 来自该项中 agent=a 的正知识文字集合的公式，Δ_a 来自负知识文字集合的公式。
     """
     if not sat_objective(term.objective_part):
@@ -458,11 +458,11 @@ def sat_not_objective(obj: ObjectiveFormula) -> bool:
 
 def is_aecnf_clause_valid(clause: AECNFClause) -> bool:
     """
-    AECNF 子句有效性：子句有效当且仅当其否定不可满足。
+    AECNF 子句Clause C（内部是析取式）的有效性：子句有效当且仅当其否定不可满足。
     否定子句为：¬α ∧ K_a φ_{a} ∧ ⋀_j ¬K_a ψ_{a,j}（跨所有代理累乘）。
-    实现为：先检查 sat(¬α)；若 sat(¬α) 为 False，子句有效。
+    实现为：先检查 sat(¬α)；若 sat(¬α) 为 False，则 ¬C不可满足，C有效。
             否则，对每个代理计算 new Γ_a = {φ_a}（来自原负知识），new Δ_a = {ψ_{a,j}}（来自原正知识），检查 sat_K(new Γ_a, new Δ_a)。
-            若所有代理的 sat_K 均为 True，则 ¬子句可满足 => 子句无效；否则有效。
+            若所有代理的 sat_K 均为 True，则 ¬C 可满足 => C 无效；否则 C 有效。
     """
     if not sat_not_objective(clause.objective_part):
         return True
