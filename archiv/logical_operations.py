@@ -1,4 +1,5 @@
-from .models import AEDNFAECNFPair, AEDNF, AECNF, AEDNFTerm, AECNFClause, KnowledgeLiteral, ObjectiveFormula
+from typing import List, Dict
+from .models import AEDNFAECNFPair, AEDNF, AECNF, AEDNFTerm, AECNFClause, KnowledgeLiteral, ObjectiveFormula, create_objective_pair
 from .obdd import negate, AND, NOT, OR, implies, true_node, false_node, conjoin, disjoin, reset_cache, Node, branch_cache, nodeID_2_key
 
 def get_node_from_id(node_id: int) -> Node:
@@ -387,3 +388,167 @@ def know(formula: AEDNFAECNFPair, agent: str) -> AEDNFAECNFPair:
 
 
         
+############################
+# SAT / VALIDITY UTILITIES #
+############################
+
+def sat_objective(obj: ObjectiveFormula) -> bool:
+    """
+    客观公式可满足性：等价于 OBDD 节点不是 false。
+    """
+    return obj.obdd_node_id != false_node.id
+
+
+def sat_k_gamma_delta(gammas: List[AEDNFAECNFPair], deltas: List[AEDNFAECNFPair]) -> bool:
+    """
+    sat_K(Γ, Δ)：Gamma 为正知识（K_a φ），Delta 为负知识（¬K_a ψ）。
+    语义：对每个 δ∈Δ，Γ ∧ ¬δ 可满足。
+    这里复用现有运算：把 Γ 合取成一个 Pair，然后依次与每个 ¬δ 做合取并检查 satisfiable。
+    """
+    # 合取所有 Γ
+    gamma_conj: AEDNFAECNFPair | None = None
+    for g in gammas:
+        gamma_conj = g if gamma_conj is None else land(gamma_conj, g)
+    if gamma_conj is None:
+        gamma_conj = create_objective_pair("⊤")
+
+    # 对每个 δ：检查 Γ ∧ ¬δ 可满足
+    for d in deltas:
+        if not is_aednf_sat(land(gamma_conj, lnot(d))):
+            return False
+    return True
+
+
+def sat_aednf_term(term: AEDNFTerm) -> bool:
+    """
+    AEDNF 的一项可满足：
+      sat(objective) 且 对每个代理 a：sat_K(Γ_a, Δ_a)
+    其中 Γ_a 来自该项中 agent=a 的正知识文字集合的公式，Δ_a 来自负知识文字集合的公式。
+    """
+    if not sat_objective(term.objective_part):
+        return False
+
+    agent_to_gamma: Dict[str, List[AEDNFAECNFPair]] = {}
+    agent_to_delta: Dict[str, List[AEDNFAECNFPair]] = {}
+    for lit in term.positive_literals:
+        agent_to_gamma.setdefault(lit.agent, []).append(lit.formula)
+    for lit in term.negative_literals:
+        agent_to_delta.setdefault(lit.agent, []).append(lit.formula)
+
+    for agent in set(list(agent_to_gamma.keys()) + list(agent_to_delta.keys())):
+        gammas = agent_to_gamma.get(agent, [])
+        deltas = agent_to_delta.get(agent, [])
+        if not sat_k_gamma_delta(gammas, deltas):
+            return False
+    return True
+
+
+def is_aednf_sat(phi: AEDNFAECNFPair) -> bool:
+    """AEDNF 可满足：存在一项可满足。"""
+    for term in phi.aednf.terms:
+        if sat_aednf_term(term):
+            return True
+    return False
+
+
+def sat_not_objective(obj: ObjectiveFormula) -> bool:
+    """sat(¬α)：等价于 α 不是永真（OBDD 节点不是 true）。"""
+    return obj.obdd_node_id != true_node.id
+
+
+def is_aecnf_clause_valid(clause: AECNFClause) -> bool:
+    """
+    AECNF 子句有效性：子句有效当且仅当其否定不可满足。
+    否定子句为：¬α ∧ K_a φ_{a} ∧ ⋀_j ¬K_a ψ_{a,j}（跨所有代理累乘）。
+    实现为：先检查 sat(¬α)；若 sat(¬α) 为 False，子句有效。
+            否则，对每个代理计算 new Γ_a = {φ_a}（来自原负知识），new Δ_a = {ψ_{a,j}}（来自原正知识），检查 sat_K(new Γ_a, new Δ_a)。
+            若所有代理的 sat_K 均为 True，则 ¬子句可满足 => 子句无效；否则有效。
+    """
+    if not sat_not_objective(clause.objective_part):
+        return True
+
+    agent_to_gamma: Dict[str, List[AEDNFAECNFPair]] = {}
+    agent_to_delta: Dict[str, List[AEDNFAECNFPair]] = {}
+    for lit in clause.negative_literals:  # ¬K_a φ 在否定后变 K_a φ -> 进入 Γ
+        agent_to_gamma.setdefault(lit.agent, []).append(lit.formula)
+    for lit in clause.positive_literals:  # K_a ψ 在否定后变 ¬K_a ψ -> 进入 Δ
+        agent_to_delta.setdefault(lit.agent, []).append(lit.formula)
+
+    all_ok = True
+    for agent in set(list(agent_to_gamma.keys()) + list(agent_to_delta.keys())):
+        gammas = agent_to_gamma.get(agent, [])
+        deltas = agent_to_delta.get(agent, [])
+        if not sat_k_gamma_delta(gammas, deltas):
+            all_ok = False
+            break
+    # 若所有 sat_K 为 True，否定子句可满足 -> 原子句无效
+    return not all_ok
+
+
+def is_aecnf_valid(phi: AEDNFAECNFPair) -> bool:
+    """AECNF 有效：所有子句都有效。"""
+    for clause in phi.aecnf.clauses:
+        if not is_aecnf_clause_valid(clause):
+            return False
+    return True
+
+
+############################
+# SAT-BASED SIMPLIFICATION #
+############################
+
+def normalize_aednf(aednf: AEDNF) -> AEDNF:
+    """
+    根据 SAT 结果移除不可满足的 AEDNF 项。
+    若全部不可满足，则返回包含一个客观 ⊥ 的占位项以满足结构约束。
+    """
+    kept_terms: List[AEDNFTerm] = []
+    for term in aednf.terms:
+        if sat_aednf_term(term):
+            kept_terms.append(term)
+    if not kept_terms:
+        kept_terms = [AEDNFTerm(objective_part=ObjectiveFormula(obdd_node_id=false_node.id, description="⊥"))]
+    return AEDNF(terms=kept_terms, depth=aednf.depth)
+
+
+def normalize_aecnf(aecnf: AECNF) -> AECNF:
+    """
+    根据有效性移除重言式子句（有效子句）。
+    若全部为有效子句，则返回一个客观 ⊤ 的占位子句以满足结构约束。
+    """
+    kept_clauses: List[AECNFClause] = []
+    for clause in aecnf.clauses:
+        if not is_aecnf_clause_valid(clause):
+            kept_clauses.append(clause)
+    if not kept_clauses:
+        kept_clauses = [AECNFClause(objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤"))]
+    return AECNF(clauses=kept_clauses, depth=aecnf.depth)
+
+
+def normalize_pair(phi: AEDNFAECNFPair) -> AEDNFAECNFPair:
+    """对 Pair 同步做 SAT/VALIDITY 化简。"""
+    return AEDNFAECNFPair(
+        aednf=normalize_aednf(phi.aednf),
+        aecnf=normalize_aecnf(phi.aecnf),
+        depth=phi.depth,
+    )
+
+
+def smart_land(phi1: AEDNFAECNFPair, phi2: AEDNFAECNFPair) -> AEDNFAECNFPair:
+    """land 后自动做 SAT 化简。"""
+    return normalize_pair(land(phi1, phi2))
+
+
+def smart_lor(phi1: AEDNFAECNFPair, phi2: AEDNFAECNFPair) -> AEDNFAECNFPair:
+    """lor 后自动做 SAT 化简。"""
+    return normalize_pair(lor(phi1, phi2))
+
+
+def smart_lnot(phi: AEDNFAECNFPair) -> AEDNFAECNFPair:
+    """lnot 后自动做 SAT 化简。"""
+    return normalize_pair(lnot(phi))
+
+
+def smart_know(phi: AEDNFAECNFPair, agent: str) -> AEDNFAECNFPair:
+    """know 后自动做 SAT 化简。"""
+    return normalize_pair(know(phi, agent))
