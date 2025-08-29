@@ -61,6 +61,18 @@ for result in results:
     print(f"公式 {result['index']}: 可满足={result['is_satisfiable']}, 时间={result['time']:.4f}秒")
 ```
 
+### 高级公式生成器
+```bash
+# 基本用法
+python formula_generator.py --count 100 --max-depth 3 --max-agents 2 --max-vars 5
+
+# 指定目标长度
+python formula_generator.py --count 50 --target-length 500 --verbose
+
+# 完整参数示例
+python formula_generator.py --count 100 --max-depth 3 --max-agents 3 --max-vars 10 --target-length 800 --seed 42
+```
+
 ### 手动构造公式
 ```python
 # 创建基本变量
@@ -94,6 +106,13 @@ print(f"公式可满足: {is_sat}")
 1. **深度控制**：限制公式的最大嵌套深度
 2. **操作选择**：随机选择逻辑操作（∧, ∨, ¬, K）
 3. **变量分配**：随机分配命题变量和代理
+4. **长度控制**：根据目标长度控制公式复杂度
+
+### 生成器参数
+- **agent数量**：参与认知逻辑的代理数量
+- **variable数量**：可用的命题变量数量
+- **最大层数**：公式的最大嵌套深度
+- **目标长度**：期望的公式字符长度（用于控制复杂度）
 
 ### K45语义
 在K45认知逻辑中：
@@ -136,8 +155,10 @@ print(f"公式可满足: {is_sat}")
 ```
 EpistemicFormulas/
 ├── epistemic_logic_system.py    # 主系统文件（整合所有功能）
+├── formula_generator.py         # 高级公式生成器
 ├── README.md                    # 项目说明文档
-└── requirements.txt             # 依赖文件
+├── requirements.txt             # 依赖文件
+└── formula_results.json         # 测试结果示例
 ```
 
 ## 依赖要求

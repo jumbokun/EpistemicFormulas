@@ -76,9 +76,9 @@ def mk_branch(var: str, low: Node, high: Node) -> Node:
     return node
 
 def mk_know(formula: 'AEDNFAECNFPair', agent: str) -> 'AEDNFAECNFPair':
-    """创建知识算子"""
+    """创建知识算子 - 包含简化"""
     # 这里简化实现，实际应该根据formula的深度来构造
-    return AEDNFAECNFPair(
+    result = AEDNFAECNFPair(
         aednf=AEDNF(terms=[AEDNFTerm(
             objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤"),
             positive_literals=[KnowledgeLiteral(agent=agent, formula=formula, negated=False, depth=formula.depth + 1)],
@@ -91,6 +91,8 @@ def mk_know(formula: 'AEDNFAECNFPair', agent: str) -> 'AEDNFAECNFPair':
         )], depth=formula.depth + 1),
         depth=formula.depth + 1
     )
+    # 应用简化
+    return simplify_pair(result)
 
 
 # ============================================================================
@@ -160,13 +162,13 @@ class AEDNFAECNFPair(BaseModel):
 # ============================================================================
 
 def land(phi1: AEDNFAECNFPair, phi2: AEDNFAECNFPair) -> AEDNFAECNFPair:
-    """逻辑与操作"""
+    """逻辑与操作 - 包含简化"""
     # 简化的实现，实际应该合并AEDNF和AECNF
     new_node = mk_branch("∧", 
         Node(str(phi1.aednf.terms[0].objective_part.obdd_node_id)),
         Node(str(phi2.aednf.terms[0].objective_part.obdd_node_id)))
     
-    return AEDNFAECNFPair(
+    result = AEDNFAECNFPair(
         aednf=AEDNF(terms=[AEDNFTerm(
             objective_part=ObjectiveFormula(
                 obdd_node_id=new_node.id,
@@ -178,15 +180,17 @@ def land(phi1: AEDNFAECNFPair, phi2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         aecnf=AECNF(clauses=phi1.aecnf.clauses + phi2.aecnf.clauses, depth=max(phi1.depth, phi2.depth)),
         depth=max(phi1.depth, phi2.depth)
     )
+    # 应用简化
+    return simplify_pair(result)
 
 def lor(phi1: AEDNFAECNFPair, phi2: AEDNFAECNFPair) -> AEDNFAECNFPair:
-    """逻辑或操作"""
+    """逻辑或操作 - 包含简化"""
     # 简化的实现
     new_node = mk_branch("∨", 
         Node(str(phi1.aecnf.clauses[0].objective_part.obdd_node_id)),
         Node(str(phi2.aecnf.clauses[0].objective_part.obdd_node_id)))
     
-    return AEDNFAECNFPair(
+    result = AEDNFAECNFPair(
         aednf=AEDNF(terms=phi1.aednf.terms + phi2.aednf.terms, depth=max(phi1.depth, phi2.depth)),
         aecnf=AECNF(clauses=[AECNFClause(
             objective_part=ObjectiveFormula(
@@ -198,13 +202,15 @@ def lor(phi1: AEDNFAECNFPair, phi2: AEDNFAECNFPair) -> AEDNFAECNFPair:
         )], depth=max(phi1.depth, phi2.depth)),
         depth=max(phi1.depth, phi2.depth)
     )
+    # 应用简化
+    return simplify_pair(result)
 
 def lnot(phi: AEDNFAECNFPair) -> AEDNFAECNFPair:
-    """逻辑非操作"""
+    """逻辑非操作 - 包含简化"""
     # 简化的实现，实际应该交换AEDNF和AECNF
     new_node = mk_branch("¬", Node(str(phi.aednf.terms[0].objective_part.obdd_node_id)), None)
     
-    return AEDNFAECNFPair(
+    result = AEDNFAECNFPair(
         aednf=AEDNF(terms=[AEDNFTerm(
             objective_part=ObjectiveFormula(
                 obdd_node_id=new_node.id,
@@ -216,10 +222,14 @@ def lnot(phi: AEDNFAECNFPair) -> AEDNFAECNFPair:
         aecnf=phi.aecnf,
         depth=phi.depth
     )
+    # 应用简化
+    return simplify_pair(result)
 
 def know(phi: AEDNFAECNFPair, agent: str) -> AEDNFAECNFPair:
-    """知识算子"""
-    return mk_know(phi, agent)
+    """知识算子 - 包含反内省操作"""
+    # 应用反内省：K_a(φ) → φ
+    deintrospected_phi = simple_deintrospective_k(phi, agent)
+    return mk_know(deintrospected_phi, agent)
 
 
 # ============================================================================
@@ -333,6 +343,47 @@ def apply_simple_deintrospective_formula(phi: AEDNFAECNFPair) -> AEDNFAECNFPair:
     """应用简单反内省到整个公式"""
     # 简化的实现，实际应该递归处理所有知识算子
     return phi
+
+def simplify_aednf(aednf: AEDNF) -> AEDNF:
+    """简化AEDNF：移除不可满足的项"""
+    simplified_terms = []
+    for term in aednf.terms:
+        if sat_aednf_term(term):
+            simplified_terms.append(term)
+    
+    if not simplified_terms:
+        # 如果所有项都不可满足，返回false
+        return AEDNF(terms=[AEDNFTerm(
+            objective_part=ObjectiveFormula(obdd_node_id=false_node.id, description="⊥")
+        )], depth=aednf.depth)
+    
+    return AEDNF(terms=simplified_terms, depth=aednf.depth)
+
+def simplify_aecnf(aecnf: AECNF) -> AECNF:
+    """简化AECNF：移除重言式子句"""
+    simplified_clauses = []
+    for clause in aecnf.clauses:
+        if not is_aecnf_clause_valid(clause):
+            simplified_clauses.append(clause)
+    
+    if not simplified_clauses:
+        # 如果所有子句都是重言式，返回true
+        return AECNF(clauses=[AECNFClause(
+            objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤")
+        )], depth=aecnf.depth)
+    
+    return AECNF(clauses=simplified_clauses, depth=aecnf.depth)
+
+def simplify_pair(phi: AEDNFAECNFPair) -> AEDNFAECNFPair:
+    """简化AEDNF-AECNF对"""
+    simplified_aednf = simplify_aednf(phi.aednf)
+    simplified_aecnf = simplify_aecnf(phi.aecnf)
+    
+    return AEDNFAECNFPair(
+        aednf=simplified_aednf,
+        aecnf=simplified_aecnf,
+        depth=phi.depth
+    )
 
 
 # ============================================================================

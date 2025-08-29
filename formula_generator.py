@@ -17,7 +17,8 @@ from datetime import datetime
 
 # 导入主系统
 from epistemic_logic_system import (
-    FormulaGenerator, create_objective_pair, know, land, lor, lnot, sat_pair
+    FormulaGenerator, create_objective_pair, know, land, lor, lnot, sat_pair,
+    simplify_pair, simple_deintrospective_k
 )
 
 
@@ -28,10 +29,12 @@ class AdvancedFormulaGenerator:
                  max_depth: int = 3, 
                  max_agents: int = 3, 
                  max_vars: int = 10,
+                 target_length: Optional[int] = None,
                  seed: Optional[int] = None):
         self.max_depth = max_depth
         self.max_agents = max_agents
         self.max_vars = max_vars
+        self.target_length = target_length
         self.agents = [f"agent_{i}" for i in range(max_agents)]
         self.variables = [f"p{i}" for i in range(max_vars)]
         
@@ -72,10 +75,24 @@ class AdvancedFormulaGenerator:
         if use_not:
             available_ops.append('not')
         
+        # 如果没有可用操作，生成变量
         if not available_ops:
-            # 如果没有可用操作，生成变量
             var = random.choice(self.variables)
             return create_objective_pair(var)
+        
+        # 正常选择操作类型
+        op_type = random.choice(available_ops)
+        
+        # 如果指定了目标长度，尝试控制公式长度
+        if self.target_length is not None:
+            # 估算当前公式长度
+            current_length = self._estimate_formula_length(target_depth)
+            # 允许更大的误差范围，只在明显超长时才限制
+            if current_length > self.target_length * 2.0:
+                # 如果估算长度远超过目标长度，有30%概率生成变量
+                if random.random() < 0.3:
+                    var = random.choice(self.variables)
+                    return create_objective_pair(var)
         
         op_type = random.choice(available_ops)
         
@@ -140,11 +157,13 @@ class AdvancedFormulaGenerator:
                 
                 # 分析公式结构
                 structure = self.analyze_formula_structure(formula)
+                formula_length = self.get_formula_length(formula)
                 
                 results.append({
                     'index': i,
                     'formula_str': str(formula),
                     'depth': formula.depth,
+                    'length': formula_length,
                     'is_satisfiable': is_sat,
                     'time': end_time - start_time,
                     'success': True,
@@ -156,6 +175,7 @@ class AdvancedFormulaGenerator:
                     'index': i,
                     'formula_str': str(formula),
                     'depth': formula.depth,
+                    'length': self.get_formula_length(formula),
                     'is_satisfiable': None,
                     'time': end_time - start_time,
                     'success': False,
@@ -218,6 +238,24 @@ class AdvancedFormulaGenerator:
         
         return structure
     
+    def _estimate_formula_length(self, depth: int) -> int:
+        """估算公式长度"""
+        if depth == 0:
+            return 350  # 基本变量的字符串表示长度约为350字符
+        
+        # 根据深度估算长度
+        # 每个操作大约增加200-300个字符
+        base_length = 350
+        for i in range(depth):
+            base_length = base_length * 1.5 + 250  # 更合理的增长
+        return int(base_length)
+    
+    def get_formula_length(self, formula: 'AEDNFAECNFPair') -> int:
+        """获取公式的实际长度"""
+        formula_str = str(formula)
+        # 计算非空白字符的数量
+        return len([c for c in formula_str if not c.isspace()])
+    
     def save_results(self, results: Dict, filename: str):
         """保存结果到文件"""
         # 添加时间戳
@@ -225,7 +263,8 @@ class AdvancedFormulaGenerator:
         results['generator_config'] = {
             'max_depth': self.max_depth,
             'max_agents': self.max_agents,
-            'max_vars': self.max_vars
+            'max_vars': self.max_vars,
+            'target_length': self.target_length
         }
         
         with open(filename, 'w', encoding='utf-8') as f:
@@ -246,15 +285,25 @@ class AdvancedFormulaGenerator:
         print(f"成功率: {summary['success_rate']:.2%}")
         print(f"可满足率: {summary['sat_rate']:.2%}")
         
+        # 长度统计
+        if any('length' in result for result in results['results']):
+            lengths = [result['length'] for result in results['results'] if 'length' in result]
+            if lengths:
+                print(f"平均长度: {sum(lengths)/len(lengths):.1f}字符")
+                print(f"最小长度: {min(lengths)}字符")
+                print(f"最大长度: {max(lengths)}字符")
+        
         # 按深度统计
         depth_stats = {}
         for result in results['results']:
             if result['success']:
                 depth = result['depth']
                 if depth not in depth_stats:
-                    depth_stats[depth] = {'count': 0, 'sat_count': 0, 'total_time': 0}
+                    depth_stats[depth] = {'count': 0, 'sat_count': 0, 'total_time': 0, 'avg_length': 0}
                 depth_stats[depth]['count'] += 1
                 depth_stats[depth]['total_time'] += result['time']
+                if 'length' in result:
+                    depth_stats[depth]['avg_length'] += result['length']
                 if result['is_satisfiable']:
                     depth_stats[depth]['sat_count'] += 1
         
@@ -264,18 +313,20 @@ class AdvancedFormulaGenerator:
                 stats = depth_stats[depth]
                 avg_time = stats['total_time'] / stats['count']
                 sat_rate = stats['sat_count'] / stats['count']
+                avg_length = stats['avg_length'] / stats['count'] if stats['count'] > 0 else 0
                 print(f"  深度 {depth}: {stats['count']}个公式, "
-                      f"可满足率 {sat_rate:.2%}, 平均时间 {avg_time:.4f}秒")
+                      f"可满足率 {sat_rate:.2%}, 平均时间 {avg_time:.4f}秒, 平均长度 {avg_length:.1f}字符")
 
 
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(description='认知逻辑公式生成器')
     parser.add_argument('--count', type=int, default=100, help='生成公式数量')
-    parser.add_argument('--max-depth', type=int, default=3, help='最大深度')
-    parser.add_argument('--max-agents', type=int, default=3, help='最大代理数')
-    parser.add_argument('--max-vars', type=int, default=10, help='最大变量数')
+    parser.add_argument('--max-depth', type=int, default=3, help='最大层数')
+    parser.add_argument('--max-agents', type=int, default=3, help='代理数量')
+    parser.add_argument('--max-vars', type=int, default=10, help='变量数量')
     parser.add_argument('--target-depth', type=int, help='目标深度')
+    parser.add_argument('--target-length', type=int, help='目标长度（字符数）')
     parser.add_argument('--min-depth', type=int, default=0, help='最小深度')
     parser.add_argument('--no-knowledge', action='store_true', help='不使用知识算子')
     parser.add_argument('--no-and', action='store_true', help='不使用与操作')
@@ -290,10 +341,11 @@ def main():
     print(f"=== 认知逻辑公式生成器 ===")
     print(f"参数配置:")
     print(f"  公式数量: {args.count}")
-    print(f"  最大深度: {args.max_depth}")
-    print(f"  最大代理数: {args.max_agents}")
-    print(f"  最大变量数: {args.max_vars}")
+    print(f"  最大层数: {args.max_depth}")
+    print(f"  代理数量: {args.max_agents}")
+    print(f"  变量数量: {args.max_vars}")
     print(f"  目标深度: {args.target_depth}")
+    print(f"  目标长度: {args.target_length}")
     print(f"  最小深度: {args.min_depth}")
     print(f"  使用知识算子: {not args.no_knowledge}")
     print(f"  使用与操作: {not args.no_and}")
@@ -307,6 +359,7 @@ def main():
         max_depth=args.max_depth,
         max_agents=args.max_agents,
         max_vars=args.max_vars,
+        target_length=args.target_length,
         seed=args.seed
     )
     
@@ -338,6 +391,7 @@ def main():
         for result in results['results'][:10]:  # 只显示前10个
             print(f"公式 {result['index']}:")
             print(f"  深度: {result['depth']}")
+            print(f"  长度: {result.get('length', 'N/A')}字符")
             print(f"  可满足: {result['is_satisfiable']}")
             print(f"  时间: {result['time']:.4f}秒")
             print(f"  成功: {result['success']}")
