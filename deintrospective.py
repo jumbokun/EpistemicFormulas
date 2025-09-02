@@ -1,6 +1,6 @@
 from typing import List, Tuple, Optional
 from archiv.models import AEDNFAECNFPair, AEDNF, AECNF, AEDNFTerm, AECNFClause, KnowledgeLiteral, ObjectiveFormula
-from archiv.logical_operations import land, know
+from archiv.logical_operations import land, lor, know, normalize_pair
 from archiv.obdd import true_node, false_node
 
 
@@ -35,6 +35,222 @@ class TraceLogger:
         return _Ctx(self, title)
 
 
+def _is_obj_true(obj: ObjectiveFormula) -> bool:
+    return obj.obdd_node_id == true_node.id or obj.description == "⊤"
+
+
+def _is_obj_false(obj: ObjectiveFormula) -> bool:
+    return obj.obdd_node_id == false_node.id or obj.description == "⊥"
+
+
+def _is_trivially_true_pair(p: AEDNFAECNFPair) -> bool:
+    try:
+        if len(p.aednf.terms) == 1:
+            t = p.aednf.terms[0]
+            if _is_obj_true(t.objective_part) and not t.positive_literals and not t.negative_literals:
+                return True
+        if len(p.aecnf.clauses) == 1:
+            c = p.aecnf.clauses[0]
+            if _is_obj_true(c.objective_part) and not c.positive_literals and not c.negative_literals:
+                return True
+    except Exception:
+        pass
+    return False
+
+
+def _is_trivially_false_pair(p: AEDNFAECNFPair) -> bool:
+    try:
+        if len(p.aednf.terms) == 1:
+            t = p.aednf.terms[0]
+            if _is_obj_false(t.objective_part) and not t.positive_literals and not t.negative_literals:
+                return True
+        if len(p.aecnf.clauses) == 1:
+            c = p.aecnf.clauses[0]
+            if _is_obj_false(c.objective_part) and not c.positive_literals and not c.negative_literals:
+                return True
+    except Exception:
+        pass
+    return False
+
+
+def deep_simplify_pair(phi: AEDNFAECNFPair) -> AEDNFAECNFPair:
+    """
+    递归化简整个 Pair：
+      - 先对所有嵌套在 K/¬K 内部的 formula 做深度化简
+      - 再在当前层做常量折叠（删除 ⊤∧、⊥∨、K(⊥)、¬K(⊤) 等）
+    """
+    # 深化简 AEDNF
+    new_terms: List[AEDNFTerm] = []
+    for term in phi.aednf.terms:
+        if _is_obj_false(term.objective_part):
+            continue
+        drop_term = False
+        kept_pos: List[KnowledgeLiteral] = []
+        kept_neg: List[KnowledgeLiteral] = []
+        for lit in term.positive_literals:
+            sub = deep_simplify_pair(lit.formula)
+            # 应用字面值层常量规则
+            if _is_trivially_false_pair(sub):
+                drop_term = True
+                break
+            if _is_trivially_true_pair(sub):
+                continue
+            kept_pos.append(KnowledgeLiteral(agent=lit.agent, formula=sub, negated=False, depth=lit.depth))
+        if drop_term:
+            continue
+        for lit in term.negative_literals:
+            sub = deep_simplify_pair(lit.formula)
+            if _is_trivially_true_pair(sub):
+                drop_term = True
+                break
+            if _is_trivially_false_pair(sub):
+                continue
+            kept_neg.append(KnowledgeLiteral(agent=lit.agent, formula=sub, negated=True, depth=lit.depth))
+        if drop_term:
+            continue
+        new_terms.append(AEDNFTerm(
+            objective_part=term.objective_part,
+            positive_literals=kept_pos,
+            negative_literals=kept_neg
+        ))
+    if not new_terms:
+        new_terms = [AEDNFTerm(objective_part=ObjectiveFormula(obdd_node_id=false_node.id, description="⊥"))]
+
+    # 深化简 AECNF
+    new_clauses: List[AECNFClause] = []
+    for clause in phi.aecnf.clauses:
+        if _is_obj_true(clause.objective_part):
+            new_clauses.append(AECNFClause(objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤")))
+            continue
+        clause_true = False
+        kept_pos: List[KnowledgeLiteral] = []
+        kept_neg: List[KnowledgeLiteral] = []
+        for lit in clause.positive_literals:
+            sub = deep_simplify_pair(lit.formula)
+            if _is_trivially_true_pair(sub):
+                clause_true = True
+                break
+            if _is_trivially_false_pair(sub):
+                continue
+            kept_pos.append(KnowledgeLiteral(agent=lit.agent, formula=sub, negated=False, depth=lit.depth))
+        if clause_true:
+            new_clauses.append(AECNFClause(objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤")))
+            continue
+        for lit in clause.negative_literals:
+            sub = deep_simplify_pair(lit.formula)
+            if _is_trivially_false_pair(sub):
+                clause_true = True
+                break
+            if _is_trivially_true_pair(sub):
+                continue
+            kept_neg.append(KnowledgeLiteral(agent=lit.agent, formula=sub, negated=True, depth=lit.depth))
+        if clause_true:
+            new_clauses.append(AECNFClause(objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤")))
+            continue
+        new_clauses.append(AECNFClause(
+            objective_part=clause.objective_part,
+            positive_literals=kept_pos,
+            negative_literals=kept_neg
+        ))
+
+    simplified = AEDNFAECNFPair(
+        aednf=AEDNF(terms=new_terms, depth=phi.aednf.depth),
+        aecnf=AECNF(clauses=new_clauses, depth=phi.aecnf.depth),
+        depth=phi.depth
+    )
+    # 当前层再做一遍浅常量化简以去除可能新形成的项/子句
+    return simplify_constants_in_pair(simplified)
+
+
+def simplify_constants_in_pair(phi: AEDNFAECNFPair) -> AEDNFAECNFPair:
+    """
+    常量化简（浅层）：
+    - AEDNF 项：
+        - 目标部为 ⊥ -> 移除该项
+        - 含 K_a(⊤) 或 ¬K_a(⊥) -> 删除这些总为真的文字
+        - 含 K_a(⊥) 或 ¬K_a(⊤) -> 整项为假 -> 移除该项
+    - AECNF 子句：
+        - 目标部为 ⊤ -> 整子句为真
+        - 删除 K_a(⊥) 或 ¬K_a(⊤) 这些总为假的析取项
+        - 若含 K_a(⊤) 或 ¬K_a(⊥) -> 整子句为真
+    返回同构的新 Pair。
+    """
+    # AEDNF 处理
+    new_terms: List[AEDNFTerm] = []
+    for term in phi.aednf.terms:
+        if _is_obj_false(term.objective_part):
+            continue
+        drop_term = False
+        kept_pos: List[KnowledgeLiteral] = []
+        kept_neg: List[KnowledgeLiteral] = []
+        for lit in term.positive_literals:
+            if _is_trivially_false_pair(lit.formula):
+                drop_term = True
+                break
+            if _is_trivially_true_pair(lit.formula):
+                continue
+            kept_pos.append(lit)
+        if drop_term:
+            continue
+        for lit in term.negative_literals:
+            if _is_trivially_true_pair(lit.formula):
+                drop_term = True
+                break
+            if _is_trivially_false_pair(lit.formula):
+                continue
+            kept_neg.append(lit)
+        if drop_term:
+            continue
+        new_terms.append(AEDNFTerm(
+            objective_part=term.objective_part,
+            positive_literals=kept_pos,
+            negative_literals=kept_neg
+        ))
+    if not new_terms:
+        new_terms = [AEDNFTerm(objective_part=ObjectiveFormula(obdd_node_id=false_node.id, description="⊥"))]
+
+    # AECNF 处理
+    new_clauses: List[AECNFClause] = []
+    for clause in phi.aecnf.clauses:
+        if _is_obj_true(clause.objective_part):
+            new_clauses.append(AECNFClause(objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤")))
+            continue
+        clause_true = False
+        kept_pos: List[KnowledgeLiteral] = []
+        kept_neg: List[KnowledgeLiteral] = []
+        for lit in clause.positive_literals:
+            if _is_trivially_true_pair(lit.formula):
+                clause_true = True
+                break
+            if _is_trivially_false_pair(lit.formula):
+                continue
+            kept_pos.append(lit)
+        if clause_true:
+            new_clauses.append(AECNFClause(objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤")))
+            continue
+        for lit in clause.negative_literals:
+            if _is_trivially_false_pair(lit.formula):
+                clause_true = True
+                break
+            if _is_trivially_true_pair(lit.formula):
+                continue
+            kept_neg.append(lit)
+        if clause_true:
+            new_clauses.append(AECNFClause(objective_part=ObjectiveFormula(obdd_node_id=true_node.id, description="⊤")))
+            continue
+        new_clauses.append(AECNFClause(
+            objective_part=clause.objective_part,
+            positive_literals=kept_pos,
+            negative_literals=kept_neg
+        ))
+
+    return AEDNFAECNFPair(
+        aednf=AEDNF(terms=new_terms, depth=phi.aednf.depth),
+        aecnf=AECNF(clauses=new_clauses, depth=phi.aecnf.depth),
+        depth=phi.depth
+    )
+
+
 def _fol_of_pair(phi: AEDNFAECNFPair, prefer_aednf: bool = True) -> str:
     """本地化的公式字符串化（仅用于日志）。"""
     def _fol_of_term(term: AEDNFTerm) -> str:
@@ -48,14 +264,25 @@ def _fol_of_pair(phi: AEDNFAECNFPair, prefer_aednf: bool = True) -> str:
         return " ∧ ".join(conj)
 
     def _fol_of_clause(clause: AECNFClause) -> str:
-        disj = [clause.objective_part.description or "⊥"]
+        disj: List[str] = []
+        has_literals = bool(clause.negative_literals or clause.positive_literals)
+        obj_desc = clause.objective_part.description
+        # 打印客观部：若为 ⊤/⊥ 且存在其它析取项，则省略输出该常量
+        if obj_desc == "⊤":
+            if not has_literals:
+                disj.append("⊤")
+        elif obj_desc == "⊥":
+            if not has_literals:
+                disj.append("⊥")
+        else:
+            disj.append(obj_desc or "⊥")
         for lit in clause.negative_literals:
             nested = _fol_of_pair(lit.formula, prefer_aednf=False)
             disj.append(f"¬K_{lit.agent}({nested})")
         for lit in clause.positive_literals:
             nested = _fol_of_pair(lit.formula, prefer_aednf=False)
             disj.append(f"K_{lit.agent}({nested})")
-        return " ∨ ".join(disj)
+        return " ∨ ".join(disj) if disj else "⊥"
 
     if prefer_aednf:
         if phi.aednf.terms:
@@ -172,7 +399,9 @@ def simple_deintrospective_k(phi: AEDNFAECNFPair, agent: str, logger: Optional['
     if detailed_logging and logger and logger.enabled:
         logger.log(f"开始简单去内省算法（K_{agent}；AEDNF 视图）")
     
-    # 首先重新排序：主观项在前，客观项在后
+    # 先做深度化简（删除 true ∧ / false ∨ 等冗余）
+    phi = deep_simplify_pair(phi)
+    # 然后重新排序：主观项在前，客观项在后
     subjective_terms = []
     objective_terms = []
     
@@ -257,149 +486,93 @@ def simple_deintrospective_k(phi: AEDNFAECNFPair, agent: str, logger: Optional['
 
 def apply_simple_deintrospective_formula(phi: AEDNFAECNFPair, agent: str, m: int, logger: Optional['TraceLogger'] = None) -> AEDNFAECNFPair:
     """
-    应用简单的去内省公式
-    简化理解：对于 Φ = (Ω₁ ∧ Θ₁) ∨ (Ω₂ ∧ Θ₂) ∨ ... ∨ (Ω_m ∧ Θ_m) ∨ ⋁_{i=m+1}^n Ω_i
-    我们希望得到：D_a[Φ] = K_a(⋁_{i=m+1}^n Ω_i) ∧ Θ₁ ∧ Θ₂ ∧ ... ∧ Θ_m
+    递归实现 D_a[Φ]（AEDNF 视图），符合你给出的定义：
+      若 ℓ_Φ = 0，则 D_a[Φ] := K_a(Φ)
+      若 ℓ_Φ = m > 0，则
+        D_a[Φ] := D_a[V_{m-1} ∨ ⋁_{i=m+1}^n Ω_i]
+                 ∨ ⋁_{C∈C(D_a[V_{m-1} ∨ ⋁_{i=m}^n Ω_i])} (C ∧ Θ_m)
+
+    其中：
+      V_{k} = ⋁_{i=1}^{k} (Ω_i ∧ Θ_i)（按 a-主观项计数后的前缀）
+      Ω_i/Θ_i 为针对代理 a 的项分解。
     """
     n = len(phi.aednf.terms)
     detailed_logging = bool(logger and logger.enabled)
     if detailed_logging:
-        logger.log(f"应用简单去内省公式 - m={m}, n={n}")
-    
+        logger.log(f"应用递归 D_{agent}[Φ]：m={m}, n={n}")
+
+    # 基本情形
     if m == 0:
-        # 没有主观项，直接返回 K_a(phi)
         if detailed_logging:
-            logger.log(f"m=0，没有主观项，直接返回 K_{agent}(Φ)")
+            logger.log(f"ℓ_Φ=0：返回 K_{agent}(Φ)")
         return know(phi, agent)
-    
-    # 构造客观部分：⋁_{i=m+1}^n Ω_i
-    objective_terms = []
-    if detailed_logging and logger and logger.enabled:
-        with logger.block(f"Step 1: 构造客观部分 O = ⋁ Ω_i (i∈[{m+1}, {n}])"):
-            for i in range(m, n):
-                omega, _ = decompose_term_by_agent(phi.aednf.terms[i], agent, logger)
-                logger.log(f"Ω_{i+1}: obj={omega.objective_part.description} +{[lit.agent for lit in omega.positive_literals]} -{[lit.agent for lit in omega.negative_literals]}")
-                objective_terms.append(omega)
-    else:
-        if detailed_logging:
-            logger.log(f"开始构造客观部分，范围: [{m}, {n})")
-        for i in range(m, n):
-            omega, _ = decompose_term_by_agent(phi.aednf.terms[i], agent, logger)
-            if detailed_logging:
-                logger.log(f"项 {i+1} 的客观部分: {omega.objective_part.description} +{[lit.agent for lit in omega.positive_literals]} -{[lit.agent for lit in omega.negative_literals]}")
-            objective_terms.append(omega)
-    
-    # 如果 m=n，说明所有项都是主观的，我们需要从主观项中提取客观部分
-    if m == n:
+
+    # 取第 m 项的分解（注意：phi 已经按主观在前排序）
+    omega_m, theta_m = decompose_term_by_agent(phi.aednf.terms[m - 1], agent, logger)
+
+    # 收集 i∈[m+1, n] 的 Ω_i（phi 中索引为 m..n-1 的项都是 a-客观项）
+    omegas_after_m: List[AEDNFTerm] = []
+    for i in range(m, n):
+        omega_i, _ = decompose_term_by_agent(phi.aednf.terms[i], agent, logger)
+        omegas_after_m.append(omega_i)
+
+    # 构造 Left 输入：V_{m-1} ∨ ⋁_{i=m+1}^n Ω_i
+    left_terms: List[AEDNFTerm] = list(phi.aednf.terms[:m - 1]) + omegas_after_m
+    left_input: Optional[AEDNFAECNFPair] = None
+    if left_terms:
+        left_input = AEDNFAECNFPair(
+            aednf=AEDNF(terms=left_terms, depth=phi.depth),
+            aecnf=phi.aecnf,
+            depth=phi.depth
+        )
+
+    # 构造 Right 输入：V_{m-1} ∨ Ω_m ∨ ⋁_{i=m+1}^n Ω_i
+    right_terms: List[AEDNFTerm] = list(phi.aednf.terms[:m - 1]) + [omega_m] + omegas_after_m
+    right_input = AEDNFAECNFPair(
+        aednf=AEDNF(terms=right_terms, depth=phi.depth),
+        aecnf=phi.aecnf,
+        depth=phi.depth
+    )
+
+    left_da: Optional[AEDNFAECNFPair] = None
+    if left_input is not None:
         if detailed_logging and logger and logger.enabled:
-            with logger.block(f"m=n={m}：所有项主观，从主观项提取 Ω_i"):
-                for i in range(m):
-                    omega, _ = decompose_term_by_agent(phi.aednf.terms[i], agent, logger)
-                    if omega is not None:
-                        logger.log(f"Ω_{i+1}: obj={omega.objective_part.description} +{[lit.agent for lit in omega.positive_literals]} -{[lit.agent for lit in omega.negative_literals]}")
-                        objective_terms.append(omega)
-        else:
-            if detailed_logging:
-                logger.log(f"m=n={m}，所有项都是主观的，从主观项中提取客观部分")
-            for i in range(m):
-                omega, _ = decompose_term_by_agent(phi.aednf.terms[i], agent, logger)
-                if omega is not None:
-                    if detailed_logging:
-                        logger.log(f"主观项 {i+1} 的客观部分: {omega.objective_part.description} +{[lit.agent for lit in omega.positive_literals]} -{[lit.agent for lit in omega.negative_literals]}")
-                    objective_terms.append(omega)
-    
-    if detailed_logging:
-        logger.log(f"客观部分 O 构造完成，共 {len(objective_terms)} 项")
-        # 打印 O 的展开
-        o_phi = AEDNFAECNFPair(
-            aednf=AEDNF(terms=objective_terms if objective_terms else [AEDNFTerm(objective_part=ObjectiveFormula(obdd_node_id=false_node.id, description="⊥"))], depth=phi.depth),
-            aecnf=phi.aecnf,
-            depth=phi.depth
-        )
-        logger.log(f"O（AEDNF）= {_fol_of_pair(o_phi, prefer_aednf=True)}")
-    
-    # 构造主观部分：Θ₁ ∧ Θ₂ ∧ ... ∧ Θ_m
-    subjective_terms = []
+            with logger.block("Left 分支：D_a[V_{m-1} ∨ ⋁ Ω_{>m}]"):
+                logger.log(f"Left 输入（AEDNF）= {_fol_of_pair(left_input, prefer_aednf=True)}")
+        left_da = simple_deintrospective_k(left_input, agent, logger)
+    else:
+        if detailed_logging:
+            logger.log("Left 分支为空（m=1 且无 Ω_{>m}），按 false 处理并跳过")
+
     if detailed_logging and logger and logger.enabled:
-        with logger.block(f"Step 2: 构造主观部分 T = ⋀ Θ_i (i∈[1, {m}])"):
-            for i in range(m):
-                _, theta = decompose_term_by_agent(phi.aednf.terms[i], agent, logger)
-                if theta is not None:
-                    logger.log(f"Θ_{i+1}: obj={theta.objective_part.description} +{[lit.agent for lit in theta.positive_literals]} -{[lit.agent for lit in theta.negative_literals]}")
-                    subjective_terms.append(theta)
-            logger.log(f"T 项数 = {len(subjective_terms)}")
-    else:
-        if detailed_logging:
-            logger.log(f"开始构造主观部分，范围: [0, {m})")
-        for i in range(m):
-            _, theta = decompose_term_by_agent(phi.aednf.terms[i], agent, logger)
-            if theta is not None:
-                if detailed_logging:
-                    logger.log(f"项 {i+1} 的主观部分: {theta.objective_part.description} +{[lit.agent for lit in theta.positive_literals]} -{[lit.agent for lit in theta.negative_literals]}")
-                subjective_terms.append(theta)
-    
+        with logger.block("Right 分支：D_a[V_{m-1} ∨ Ω_m ∨ ⋁ Ω_{>m}] 与 Θ_m 合取"):
+            logger.log(f"Right 输入（AEDNF）= {_fol_of_pair(right_input, prefer_aednf=True)}")
+    right_da = simple_deintrospective_k(right_input, agent, logger)
+
+    # 将 Θ_m 转成 Pair，深度与 right_da 对齐以便合取时按高阶规则合并知识文字
+    theta_pair = AEDNFAECNFPair(
+        aednf=AEDNF(terms=[theta_m], depth=right_da.depth),
+        aecnf=AECNF(clauses=[AECNFClause(
+            objective_part=theta_m.objective_part,
+            positive_literals=theta_m.positive_literals,
+            negative_literals=theta_m.negative_literals
+        )], depth=right_da.depth),
+        depth=right_da.depth
+    )
+
+    right_conj = land(right_da, theta_pair)
+    # 化简 Right 分支
+    right_conj = normalize_pair(right_conj)
+
+    # 汇总：Left ∨ (Right ∧ Θ_m)
+
+    result = right_conj if left_da is None else lor(left_da, right_conj)
+    # 最终结果化简
+    result = normalize_pair(result)
+
     if detailed_logging:
-        logger.log(f"主观部分构造完成，共 {len(subjective_terms)} 项")
-    
-    # 构造结果：K_a(客观部分) ∧ 主观部分
-    if objective_terms:
-        # 有客观部分
-        if detailed_logging:
-            logger.log(f"Step 3: 构造 K_{agent}(O)")
-        objective_phi = AEDNFAECNFPair(
-            aednf=AEDNF(terms=objective_terms, depth=phi.depth),
-            aecnf=phi.aecnf,
-            depth=phi.depth
-        )
-        k_objective = know(objective_phi, agent)
-        if detailed_logging:
-            logger.log(f"K_{agent}(O) 构造完成，深度: {k_objective.depth}")
-            logger.log(f"O（AEDNF）= {_fol_of_pair(objective_phi, prefer_aednf=True)}")
-        
-        if subjective_terms:
-            # 有主观部分，需要与客观部分结合
-            if detailed_logging:
-                logger.log(f"Step 4: 合并 R = K_{agent}(O) ∧ T")
-            result = k_objective
-            for idx, theta in enumerate(subjective_terms):
-                if detailed_logging:
-                    logger.log(f"合并 Θ_{idx+1}/{len(subjective_terms)}")
-                theta_pair = AEDNFAECNFPair(
-                    aednf=AEDNF(terms=[theta], depth=0),
-                    aecnf=AECNF(clauses=[AECNFClause(
-                        objective_part=theta.objective_part,
-                        positive_literals=theta.positive_literals,
-                        negative_literals=theta.negative_literals
-                    )], depth=0),
-                    depth=0
-                )
-                if detailed_logging:
-                    logger.log(f"主观部分 {idx+1} 转换为 Pair，深度: {theta_pair.depth}")
-                result = land(result, theta_pair)
-                if detailed_logging:
-                    logger.log(f"当前 R（AEDNF）= {_fol_of_pair(result, prefer_aednf=True)}；depth={result.depth}")
-            if detailed_logging:
-                logger.log(f"完成：D_{agent}[Φ]（AEDNF）= {_fol_of_pair(result, prefer_aednf=True)}")
-            return result
-        else:
-            # 没有主观部分
-            if detailed_logging:
-                logger.log(f"没有主观部分，直接返回 K_{agent}(客观部分)")
-            return k_objective
-    else:
-        # 没有客观部分，只有主观部分
-        if detailed_logging:
-            logger.log(f"没有客观部分，只有主观部分")
-        if subjective_terms:
-            # 只有主观部分，直接返回 K_a(phi)
-            if detailed_logging:
-                logger.log(f"只有主观部分，直接返回 K_{agent}(Φ)")
-            return know(phi, agent)
-        else:
-            # 既没有客观部分也没有主观部分（不应该发生）
-            if detailed_logging:
-                logger.log(f"既没有客观部分也没有主观部分（不应该发生），返回 K_{agent}(Φ)")
-            return know(phi, agent)
+        logger.log(f"完成一步：D_{agent}[Φ] = {_fol_of_pair(result, prefer_aednf=True)}")
+    return simplify_constants_in_pair(result)
 
 def extract_atomic_propositions(phi: AEDNFAECNFPair) -> List[str]:
     """
@@ -551,5 +724,5 @@ def simple_deintrospective_c(phi: AEDNFAECNFPair, agent: str) -> AEDNFAECNFPair:
             result_pair = land(result_pair, processed)
 
     assert result_pair is not None, "AECNF 至少应有一个子句"
-    return result_pair
+    return simplify_constants_in_pair(normalize_pair(result_pair))
 

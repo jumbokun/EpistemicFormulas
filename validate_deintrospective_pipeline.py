@@ -11,6 +11,16 @@ AGENTS = ["a", "b"]
 VARS = ["p", "q", "r", "s", "t", "u"]
 
 
+def _canon_obj_desc(desc: str | None) -> str:
+    if not desc:
+        return ""
+    if desc == "¬(⊤)":
+        return "⊥"
+    if desc == "¬(⊥)":
+        return "⊤"
+    return desc
+
+
 def fol_of_pair(phi: AEDNFAECNFPair, prefer_aednf: bool = True) -> str:
     """
     展开公式为 FOL 表示
@@ -25,6 +35,9 @@ def fol_of_pair(phi: AEDNFAECNFPair, prefer_aednf: bool = True) -> str:
         # 总是展开为 AEDNF 形式（析取项）
         if phi.aednf.terms:
             parts = [fol_of_term(t) for t in phi.aednf.terms]
+            parts = [p for p in parts if p != "⊥"]  # AEDNF 中移除恒假项
+            if not parts:
+                return "⊥"
             return " ∨ ".join(parts) if len(parts) == 1 else " ∨ ".join(f"({p})" for p in parts)
         else:
             return "⊥"
@@ -32,13 +45,22 @@ def fol_of_pair(phi: AEDNFAECNFPair, prefer_aednf: bool = True) -> str:
         # 总是展开为 AECNF 形式（合取子句）
         if phi.aecnf.clauses:
             parts = [fol_of_clause(c) for c in phi.aecnf.clauses]
+            parts = [p for p in parts if p != "⊤"]  # AECNF 中移除恒真子句
+            if not parts:
+                return "⊤"
             return " ∧ ".join(parts) if len(parts) == 1 else " ∧ ".join(f"({p})" for p in parts)
         else:
             return "⊤"
 
 
 def fol_of_term(term: AEDNFTerm) -> str:
-    conj = [term.objective_part.description or "⊤"]
+    # 规范化客观部
+    obj_desc = _canon_obj_desc(term.objective_part.description)
+    if obj_desc == "⊥":
+        return "⊥"  # ⊥ ∧ φ ≡ ⊥
+    conj: List[str] = []
+    if obj_desc and obj_desc != "⊤":
+        conj.append(obj_desc)
     for lit in term.positive_literals:
         # 在 AEDNF term 中，总是展开为 AEDNF 形式
         nested_formula = fol_of_pair(lit.formula, prefer_aednf=True)
@@ -47,11 +69,19 @@ def fol_of_term(term: AEDNFTerm) -> str:
         # 在 AEDNF term 中，总是展开为 AEDNF 形式
         nested_formula = fol_of_pair(lit.formula, prefer_aednf=True)
         conj.append(f"¬K_{lit.agent}({nested_formula})")
+    if not conj:
+        return "⊤"  # 无任何合取项则打印 ⊤
     return " ∧ ".join(conj)
 
 
 def fol_of_clause(clause: AECNFClause) -> str:
-    disj = [clause.objective_part.description or "⊥"]
+    # 规范化客观部
+    obj_desc = _canon_obj_desc(clause.objective_part.description)
+    if obj_desc == "⊤":
+        return "⊤"  # ⊤ ∨ φ ≡ ⊤
+    disj: List[str] = []
+    if obj_desc and obj_desc != "⊥":
+        disj.append(obj_desc)
     for lit in clause.negative_literals:
         # 在 AECNF clause 中，总是展开为 AECNF 形式
         nested_formula = fol_of_pair(lit.formula, prefer_aednf=False)
@@ -60,6 +90,8 @@ def fol_of_clause(clause: AECNFClause) -> str:
         # 在 AECNF clause 中，总是展开为 AECNF 形式
         nested_formula = fol_of_pair(lit.formula, prefer_aednf=False)
         disj.append(f"K_{lit.agent}({nested_formula})")
+    if not disj:
+        return "⊥"  # 无任何析取项则打印 ⊥
     return " ∨ ".join(disj)
 
 
